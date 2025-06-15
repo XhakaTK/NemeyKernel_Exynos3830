@@ -654,9 +654,20 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
 		if (!p)
 			return -ENOMEM;
 	}
-	if (ctl->limit == 1) {
-		kfree(p);
-		return -EINVAL;
+	if (ctl->limit) {
+		unsigned int flows = q->maxflows;
+		unsigned int depth = q->maxdepth;
+
+		if (ctl->flows)
+			flows = min_t(u32, ctl->flows, SFQ_MAX_FLOWS);
+		if (ctl->divisor)
+			flows = min_t(u32, flows, ctl->divisor);
+		if (ctl_v1 && ctl_v1->depth)
+			depth = min_t(u32, ctl_v1->depth, SFQ_MAX_DEPTH);
+		if (min_t(u32, ctl->limit, depth * flows) == 1) {
+			kfree(p);
+			return -EINVAL;
+		}
 	}
 	sch_tree_lock(sch);
 	if (ctl->quantum) {
