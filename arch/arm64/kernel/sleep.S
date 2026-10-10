@@ -148,3 +148,13 @@ SYM_FUNC_START(_cpu_resume)
 	mov	x0, #0
 	ret
 SYM_FUNC_END(_cpu_resume)
+
+/*
+ * exynos_cpu_resume — Entrada que o bootloader espera
+ */
+.pushsection ".idmap.text", "awx"
+SYM_CODE_START(exynos_cpu_resume)
+    .word 0x2bedf00d    /* Magic number de validação */
+    b       cpu_resume
+SYM_CODE_END(exynos_cpu_resume)
+.popsection

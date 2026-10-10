@@ -1,15 +1,14 @@
 #include <linux/module.h>
-#include <soc/samsung/debug-snapshot.h>
+#include <linux/debug-snapshot.h>
 #include <soc/samsung/ect_parser.h>
 #include <soc/samsung/cal-if.h>
-#include <soc/samsung/fvmap.h>
 
 #include "pwrcal-env.h"
 #include "pwrcal-rae.h"
 #include "cmucal.h"
-#include "vclk.h"
 #include "ra.h"
 #include "acpm_dvfs.h"
+#include "fvmap.h"
 #include "asv.h"
 
 #include "pmucal_system.h"
@@ -19,47 +18,37 @@
 #include "pmucal_gnss.h"
 #include "pmucal_shub.h"
 #include "pmucal_rae.h"
-#if defined(CONFIG_EXYNOS_BCM_DBG) || defined(CONFIG_EXYNOS_BCM_DBG_MODULE)
+#ifdef CONFIG_EXYNOS_BCM_DBG
 #include <soc/samsung/exynos-bcm_dbg.h>
 #endif
 #include "pmucal_powermode.h"
 
-#include "../acpm/acpm.h"
-
 static DEFINE_SPINLOCK(pmucal_cpu_lock);
-
-int (*exynos_cal_pd_bcm_sync)(unsigned int id, bool on);
-EXPORT_SYMBOL(exynos_cal_pd_bcm_sync);
 
 unsigned int cal_clk_is_enabled(unsigned int id)
 {
 	return 0;
 }
-EXPORT_SYMBOL_GPL(cal_clk_is_enabled);
 
 unsigned long cal_dfs_get_max_freq(unsigned int id)
 {
 	return vclk_get_max_freq(id);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_max_freq);
 
 unsigned long cal_dfs_get_min_freq(unsigned int id)
 {
 	return vclk_get_min_freq(id);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_min_freq);
 
 unsigned int cal_dfs_get_lv_num(unsigned int id)
 {
 	return vclk_get_lv_num(id);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_lv_num);
 
 int cal_dfs_get_bigturbo_max_freq(unsigned int *table)
 {
 	return vclk_get_bigturbo_table(table);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_bigturbo_max_freq);
 
 int cal_dfs_set_rate(unsigned int id, unsigned long rate)
 {
@@ -79,7 +68,6 @@ int cal_dfs_set_rate(unsigned int id, unsigned long rate)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_set_rate);
 
 int cal_dfs_set_rate_switch(unsigned int id, unsigned long switch_rate)
 {
@@ -89,7 +77,6 @@ int cal_dfs_set_rate_switch(unsigned int id, unsigned long switch_rate)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_set_rate_switch);
 
 int cal_dfs_set_rate_restore(unsigned int id, unsigned long switch_rate)
 {
@@ -99,7 +86,6 @@ int cal_dfs_set_rate_restore(unsigned int id, unsigned long switch_rate)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_set_rate_restore);
 
 unsigned long cal_dfs_cached_get_rate(unsigned int id)
 {
@@ -109,7 +95,6 @@ unsigned long cal_dfs_cached_get_rate(unsigned int id)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_cached_get_rate);
 
 unsigned long cal_dfs_get_rate(unsigned int id)
 {
@@ -119,7 +104,6 @@ unsigned long cal_dfs_get_rate(unsigned int id)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_rate);
 
 int cal_dfs_get_rate_table(unsigned int id, unsigned long *table)
 {
@@ -129,7 +113,6 @@ int cal_dfs_get_rate_table(unsigned int id, unsigned long *table)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_rate_table);
 
 int cal_clk_setrate(unsigned int id, unsigned long rate)
 {
@@ -139,7 +122,6 @@ int cal_clk_setrate(unsigned int id, unsigned long rate)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_clk_setrate);
 
 unsigned long cal_clk_getrate(unsigned int id)
 {
@@ -149,7 +131,6 @@ unsigned long cal_clk_getrate(unsigned int id)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_clk_getrate);
 
 int cal_clk_enable(unsigned int id)
 {
@@ -159,7 +140,6 @@ int cal_clk_enable(unsigned int id)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_clk_enable);
 
 int cal_clk_disable(unsigned int id)
 {
@@ -169,7 +149,6 @@ int cal_clk_disable(unsigned int id)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_clk_disable);
 
 int cal_qch_init(unsigned int id, unsigned int use_qch)
 {
@@ -179,19 +158,16 @@ int cal_qch_init(unsigned int id, unsigned int use_qch)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_qch_init);
 
 unsigned int cal_dfs_get_boot_freq(unsigned int id)
 {
 	return vclk_get_boot_freq(id);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_boot_freq);
 
 unsigned int cal_dfs_get_resume_freq(unsigned int id)
 {
 	return vclk_get_resume_freq(id);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_resume_freq);
 
 int cal_pd_control(unsigned int id, int on)
 {
@@ -205,21 +181,20 @@ int cal_pd_control(unsigned int id, int on)
 
 	if (on) {
 		ret = pmucal_local_enable(index);
-#if defined(CONFIG_EXYNOS_BCM_DBG) || defined(CONFIG_EXYNOS_BCM_DBG_MODULE)
-		if (exynos_cal_pd_bcm_sync && cal_pd_status(id))
-			exynos_cal_pd_bcm_sync(id, true);
+#if defined(CONFIG_EXYNOS_BCM_DBG)
+		if (cal_pd_status(id))
+			exynos_bcm_dbg_pd_sync(id, true);
 #endif
 	} else {
-#if defined(CONFIG_EXYNOS_BCM_DBG) || defined(CONFIG_EXYNOS_BCM_DBG_MODULE)
-		if (exynos_cal_pd_bcm_sync && cal_pd_status(id))
-			exynos_cal_pd_bcm_sync(id, false);
+#if defined(CONFIG_EXYNOS_BCM_DBG)
+		if (cal_pd_status(id))
+			exynos_bcm_dbg_pd_sync(id, false);
 #endif
 		ret = pmucal_local_disable(index);
 	}
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_pd_control);
 
 int cal_pd_status(unsigned int id)
 {
@@ -232,7 +207,6 @@ int cal_pd_status(unsigned int id)
 
 	return pmucal_local_is_enabled(index);
 }
-EXPORT_SYMBOL_GPL(cal_pd_status);
 
 int cal_pd_set_smc_id(unsigned int id, int need_smc)
 {
@@ -247,25 +221,21 @@ int cal_pd_set_smc_id(unsigned int id, int need_smc)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(cal_pd_set_smc_id);
 
 int cal_pm_enter(int mode)
 {
 	return pmucal_system_enter(mode);
 }
-EXPORT_SYMBOL_GPL(cal_pm_enter);
 
 int cal_pm_exit(int mode)
 {
 	return pmucal_system_exit(mode);
 }
-EXPORT_SYMBOL_GPL(cal_pm_exit);
 
 int cal_pm_earlywakeup(int mode)
 {
 	return pmucal_system_earlywakeup(mode);
 }
-EXPORT_SYMBOL_GPL(cal_pm_earlywakeup);
 
 int cal_cpu_enable(unsigned int cpu)
 {
@@ -277,7 +247,6 @@ int cal_cpu_enable(unsigned int cpu)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cpu_enable);
 
 int cal_cpu_disable(unsigned int cpu)
 {
@@ -289,7 +258,6 @@ int cal_cpu_disable(unsigned int cpu)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cpu_disable);
 
 int cal_cpu_status(unsigned int cpu)
 {
@@ -301,7 +269,6 @@ int cal_cpu_status(unsigned int cpu)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cpu_status);
 
 int cal_cluster_enable(unsigned int cluster)
 {
@@ -313,7 +280,6 @@ int cal_cluster_enable(unsigned int cluster)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cluster_enable);
 
 int cal_cluster_disable(unsigned int cluster)
 {
@@ -325,7 +291,6 @@ int cal_cluster_disable(unsigned int cluster)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cluster_disable);
 
 int cal_cluster_status(unsigned int cluster)
 {
@@ -337,7 +302,6 @@ int cal_cluster_status(unsigned int cluster)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cluster_status);
 
 int cal_cluster_req_emulation(unsigned int cluster, bool en)
 {
@@ -349,32 +313,22 @@ int cal_cluster_req_emulation(unsigned int cluster, bool en)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(cal_cluster_req_emulation);
 
 extern int cal_is_lastcore_detecting(unsigned int cpu)
 {
 	return pmucal_is_lastcore_detecting(cpu);
 }
-EXPORT_SYMBOL_GPL(cal_is_lastcore_detecting);
 
 int cal_dfs_get_asv_table(unsigned int id, unsigned int *table)
 {
 	return fvmap_get_voltage_table(id, table);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_asv_table);
-
-int cal_dfs_get_freq_volt_table(unsigned int id, void *table, int size)
-{
-        return fvmap_get_freq_volt_table(id, table, size);
-}
-EXPORT_SYMBOL_GPL(cal_dfs_get_freq_volt_table);
 
 void cal_dfs_set_volt_margin(unsigned int id, int volt)
 {
 	if (IS_ACPM_VCLK(id))
 		exynos_acpm_set_volt_margin(id, volt);
 }
-EXPORT_SYMBOL_GPL(cal_dfs_set_volt_margin);
 
 int cal_dfs_get_rate_asv_table(unsigned int id,
 					struct dvfs_rate_volt *table)
@@ -398,138 +352,99 @@ int cal_dfs_get_rate_asv_table(unsigned int id,
 
 	return num_of_entry;
 }
-EXPORT_SYMBOL_GPL(cal_dfs_get_rate_asv_table);
 
 int cal_asv_get_ids_info(unsigned int id)
 {
 	return asv_get_ids_info(id);
 }
-EXPORT_SYMBOL_GPL(cal_asv_get_ids_info);
 
 int cal_asv_get_grp(unsigned int id)
 {
 	return asv_get_grp(id);
 }
-EXPORT_SYMBOL_GPL(cal_asv_get_grp);
 
 int cal_asv_get_tablever(void)
 {
 	return asv_get_table_ver();
 }
-EXPORT_SYMBOL_GPL(cal_asv_get_tablever);
 
-#if IS_ENABLED(CONFIG_CP_PMUCAL)
+#ifdef CONFIG_CP_PMUCAL
 int cal_cp_init(void)
 {
 	return pmucal_cp_init();
 }
-EXPORT_SYMBOL_GPL(cal_cp_init);
 
 int cal_cp_status(void)
 {
 	return pmucal_cp_status();
 }
-EXPORT_SYMBOL_GPL(cal_cp_status);
 
 int cal_cp_reset_assert(void)
 {
 	return pmucal_cp_reset_assert();
 }
-EXPORT_SYMBOL_GPL(cal_cp_reset_assert);
 
 int cal_cp_reset_release(void)
 {
 	return pmucal_cp_reset_release();
 }
-EXPORT_SYMBOL_GPL(cal_cp_reset_release);
 
 void cal_cp_active_clear(void)
 {
 	pmucal_cp_active_clear();
 }
-EXPORT_SYMBOL_GPL(cal_cp_active_clear);
 
 void cal_cp_reset_req_clear(void)
 {
 	pmucal_cp_reset_req_clear();
 }
-EXPORT_SYMBOL_GPL(cal_cp_reset_req_clear);
 
 void cal_cp_enable_dump_pc_no_pg(void)
 {
 	pmucal_cp_enable_dump_pc_no_pg();
 }
-EXPORT_SYMBOL_GPL(cal_cp_enable_dump_pc_no_pg);
 
 void cal_cp_disable_dump_pc_no_pg(void)
 {
 	pmucal_cp_disable_dump_pc_no_pg();
 }
-EXPORT_SYMBOL_GPL(cal_cp_disable_dump_pc_no_pg);
 #endif
 
-#if IS_ENABLED(CONFIG_GNSS_PMUCAL)
+#ifdef CONFIG_GNSS_PMUCAL
 void cal_gnss_init(void)
 {
 	pmucal_gnss_init();
 }
-EXPORT_SYMBOL_GPL(cal_gnss_init);
 
 int cal_gnss_status(void)
 {
 	return pmucal_gnss_status();
 }
-EXPORT_SYMBOL_GPL(cal_gnss_status);
 
 void cal_gnss_reset_assert(void)
 {
 	pmucal_gnss_reset_assert();
 }
-EXPORT_SYMBOL_GPL(cal_gnss_reset_assert);
 
 void cal_gnss_reset_release(void)
 {
 	pmucal_gnss_reset_release();
 }
-EXPORT_SYMBOL_GPL(cal_gnss_reset_release);
 
 void cal_gnss_reset_req_clear(void)
 {
 	pmucal_gnss_reset_req_clear();
 }
-EXPORT_SYMBOL_GPL(cal_gnss_reset_req_clear);
 
 void cal_gnss_active_clear(void)
 {
 	pmucal_gnss_active_clear();
 }
-EXPORT_SYMBOL_GPL(cal_gnss_active_clear);
 #endif
 
-#if IS_ENABLED(CONFIG_SHUB_PMUCAL)
-int cal_chub_reset_assert(void)
-{
-	return pmucal_shub_reset_assert();
-}
-EXPORT_SYMBOL(cal_chub_reset_assert);
-
-int cal_chub_reset_release_config(void)
-{
-	return pmucal_shub_reset_release_config();
-}
-EXPORT_SYMBOL(cal_chub_reset_release_config);
-
-int cal_chub_reset_release(void)
-{
-	return pmucal_shub_reset_release();
-}
-EXPORT_SYMBOL(cal_chub_reset_release);
-#endif
-
-int cal_if_init(void *dev)
+int __init cal_if_init(void *dev)
 {
 	static int cal_initialized;
-
 #ifdef CONFIG_DEBUG_FS
 	struct resource res;
 #endif
@@ -565,19 +480,19 @@ int cal_if_init(void *dev)
 	if (ret < 0)
 		return ret;
 
-#if IS_ENABLED(CONFIG_CP_PMUCAL)
+#ifdef CONFIG_CP_PMUCAL
 	ret = pmucal_cp_initialize();
 	if (ret < 0)
 		return ret;
 #endif
 
-#if IS_ENABLED(CONFIG_GNSS_PMUCAL)
+#ifdef CONFIG_GNSS_PMUCAL
 	ret = pmucal_gnss_initialize();
 	if (ret < 0)
 		return ret;
 #endif
 
-#if IS_ENABLED(CONFIG_SHUB_PMUCAL)
+#ifdef CONFIG_SHUB_PMUCAL
 	ret = pmucal_shub_initialize();
 	if (ret < 0)
 		return ret;
@@ -589,75 +504,8 @@ int cal_if_init(void *dev)
 	if (of_address_to_resource(dev, 0, &res) == 0)
 		cmucal_dbg_set_cmu_top_base(res.start);
 
-	vclk_debug_init();
-
 #endif
 	cal_initialized = 1;
 
 	return 0;
 }
-
-static int cal_if_probe(struct platform_device *pdev)
-{
-        struct device_node *np = pdev->dev.of_node;
-        int ret;
-        ret = cal_if_init(np);
-        if (ret)
-                goto out;
-
-#if IS_ENABLED(CONFIG_CP_PMUCAL)
-        cp_set_device(&pdev->dev);
-#endif
-
-        ret = fvmap_init(get_fvmap_base());
-
-out:
-        return ret;
-}
-
-static const struct of_device_id cal_if_match[] = {
-        { .compatible = "samsung,exynos_cal_if" },
-        {},
-};
-MODULE_DEVICE_TABLE(of, cal_if_match);
-
-static struct platform_driver samsung_cal_if_driver = {
-        .probe  = cal_if_probe,
-        .driver = {
-                .name = "exynos-cal-if",
-                .owner  = THIS_MODULE,
-                .of_match_table = cal_if_match,
-        },
-};
-
-static int exynos_cal_if_init(void)
-{
-        int ret;
-
-	pr_err("\n exynos_cal_if_init \n");
-        ret = platform_driver_register(&samsung_cal_if_driver);
-        if (ret) {
-                pr_err("samsung_cal_if_driver probe file\n");
-                goto err_out;
-        }
-
-        ret = exynos_acpm_dvfs_init();
-        if (ret) {
-                pr_err("samsung_cal_if_driver probe file\n");
-                goto err_out;
-        }
-
-#if defined(CONFIG_CMU_EWF) || defined(CONFIG_CMU_EWF_MODULE)
-        ret = early_wakeup_forced_enable_init();
-        if (ret) {
-                pr_err("samsung_cal_if_driver probe file\n");
-                goto err_out;
-        }
-#endif
-
-err_out:
-        return ret;
-}
-fs_initcall(exynos_cal_if_init);
-
-MODULE_LICENSE("GPL");
