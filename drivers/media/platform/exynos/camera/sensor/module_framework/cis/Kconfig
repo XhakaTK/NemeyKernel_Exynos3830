@@ -326,6 +326,13 @@ config CAMERA_CIS_4HA_OBJ
 		help
 		  Use to build 4HA camera sensor.
 
+config CAMERA_CIS_SR846_OBJ
+	tristate "Use SR846 camera cis"
+	depends on CAMERA_CIS_SELECT
+	default n
+	help
+	  Use to build SR846 camera sensor.
+
 config CAMERA_CIS_IMX576_OBJ
 		tristate "Use IMX576 camera cis"
 	depends on CAMERA_CIS_SELECT
@@ -424,6 +431,13 @@ config CAMERA_CIS_GM2_OBJ
 	default n
 	help
 	  Use to build GM2 camera sensor.
+
+config CAMERA_CIS_GC02M1_OBJ
+	bool "Use GC02M1 camera cis"
+	depends on CAMERA_CIS_SELECT
+	default n
+	help
+	  Use to build GC02M1 camera sensor.
 
 config CAMERA_CIS_IMX586_OBJ
 	tristate "Use IMX586 camera cis"
