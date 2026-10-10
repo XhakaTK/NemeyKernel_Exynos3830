@@ -32,6 +32,8 @@
 #include "is-vendor-config_aav_v04s.h"
 #elif defined(CONFIG_CAMERA_AAV_V14)
 #include "is-vendor-config_aav_v14.h"
+#elif defined(CONFIG_CAMERA_AAU_V12S)
+#include "is-vendor-config_aau_v12s.h"
 #elif defined(CONFIG_CAMERA_XXT_V5)
 #include "is-vendor-config_xxt_v5.h"
 #else

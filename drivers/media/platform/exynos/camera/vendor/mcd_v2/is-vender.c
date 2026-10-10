@@ -15,6 +15,8 @@
 #include "is-vender-specific.h"
 #include "is-core.h"
 #include "is-sec-define.h"
+#include "is-vender-rom-map-types.h"
+#include "is-vender-rom-config.h"
 #include "is-dt.h"
 #include "is-sysfs.h"
 

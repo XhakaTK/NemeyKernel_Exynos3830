@@ -11,6 +11,7 @@
  */
 
 #include "is-sec-define.h"
+#include "is-vender-rom-map-types.h"
 #include "is-vender.h"
 #include "is-vender-specific.h"
 #include "is-interface-library.h"
@@ -2790,52 +2791,58 @@ int is_sec_i2c_read_otp_gc5035(struct i2c_client *client, char *buf,
 	u8 start_addr_h = 0;
 	u8 start_addr_l = 0;
 	u8 busy_flag = 0;
-	int retry = 8;
+	int retry;
 	int ret = 0;
 	int index;
 
-	for (index = 0; index < size; index++)
-	{
-		start_addr_h = ((curr_addr>>8) & 0xFF);
+	if (!client || !buf || !size) {
+		err("invalid GC5035 OTP read resources\n");
+		return -EINVAL;
+	}
+
+	for (index = 0; index < size; index++) {
+		retry = 8;
+		start_addr_h = ((curr_addr >> 8) & 0xFF);
 		start_addr_l = (curr_addr & 0xFF);
-		ret = is_sensor_addr8_write8(client, GC5035_OTP_PAGE_ADDR, GC5035_OTP_PAGE);
-		ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_HIGH, start_addr_h);
-		ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_LOW, start_addr_l);
+		ret = is_sensor_addr8_write8(client, GC5035_OTP_PAGE_ADDR,
+					     GC5035_OTP_PAGE);
+		ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_HIGH,
+					      start_addr_h);
+		ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_LOW,
+					      start_addr_l);
 		ret |= is_sensor_addr8_write8(client, GC5035_OTP_MODE_ADDR, 0x20);
-		if (unlikely(ret))
-		{
-			err("failed to is_sensor_addr8_write8 (%d)\n", ret);
+		if (unlikely(ret)) {
+			err("failed to configure GC5035 OTP read (%d)\n", ret);
 			goto exit;
 		}
 
 		ret = is_sensor_addr8_read8(client, GC5035_OTP_BUSY_ADDR, &busy_flag);
-		if (unlikely(ret))
-		{
-			err("failed to is_sensor_addr8_read8 (%d)\n", ret);
+		if (unlikely(ret)) {
+			err("failed to read GC5035 OTP status (%d)\n", ret);
 			goto exit;
 		}
 
-		while ((busy_flag & 0x2) > 0 && retry > 0) {
-			ret = is_sensor_addr8_read8(client, GC5035_OTP_BUSY_ADDR, &busy_flag);
-			if (unlikely(ret))
-			{
-				err("failed to is_sensor_addr8_read8 (%d)\n", ret);
+		while ((busy_flag & 0x2) && retry > 0) {
+			ret = is_sensor_addr8_read8(client, GC5035_OTP_BUSY_ADDR,
+						    &busy_flag);
+			if (unlikely(ret)) {
+				err("failed to read GC5035 OTP status (%d)\n", ret);
 				goto exit;
 			}
 			retry--;
 			msleep(1);
 		}
 
-		if ((busy_flag & 0x1))
-		{
-			err("Sensor OTP_check_flag failed\n");
+		if (busy_flag & 0x3) {
+			err("GC5035 OTP busy check failed (0x%x)\n", busy_flag);
+			ret = -EIO;
 			goto exit;
 		}
 
-		ret = is_sensor_addr8_read8(client, GC5035_OTP_READ_ADDR, &buf[index]);
-		if (unlikely(ret))
-		{
-			err("failed to is_sensor_addr8_read8 (%d)\n", ret);
+		ret = is_sensor_addr8_read8(client, GC5035_OTP_READ_ADDR,
+					    &buf[index]);
+		if (unlikely(ret)) {
+			err("failed to read GC5035 OTP data (%d)\n", ret);
 			goto exit;
 		}
 		curr_addr += 8;
@@ -2848,7 +2855,7 @@ exit:
 int is_sec_readcal_otprom_gc5035(int rom_id)
 {
 	int ret = 0;
-	int retry = IS_CAL_RETRY_CNT;
+	int retry;
 	char *buf = NULL;
 	u8 otp_bank = 0;
 	u16 start_addr = 0;
@@ -2857,59 +2864,75 @@ int is_sec_readcal_otprom_gc5035(int rom_id)
 	u16 bank1_addr = 0;
 	u16 bank2_addr = 0;
 	u16 cal_size = 0;
-
 	struct is_core *core = is_get_is_core();
-	struct is_vender_specific *specific = core->vender.private_data;
+	struct is_vender_specific *specific;
 	struct is_rom_info *finfo = NULL;
 	struct i2c_client *client = NULL;
-	struct v4l2_subdev *subdev_cis = NULL;
 	struct is_device_sensor_peri *sensor_peri = NULL;
 	struct is_module_enum *module = NULL;
 	u32 i2c_channel;
+#ifdef CONFIG_SEC_CAL_ENABLE
+	char *buf_rom_data = NULL;
+#endif
 	int position = is_vendor_get_position_from_rom_id(rom_id);
 
-	if(rom_id == 1) {
+	if (!core || !core->vender.private_data) {
+		err("camera vendor data is unavailable\n");
+		return -ENODEV;
+	}
+	specific = core->vender.private_data;
+
+	if (rom_id == 1) {
 		bank1_addr = GC5035_FRONT_OTP_START_ADDR_BANK1;
 		bank2_addr = GC5035_FRONT_OTP_START_ADDR_BANK2;
 		cal_size = GC5035_FRONT_OTP_USED_CAL_SIZE;
-	}
-	else if(rom_id == 2) {
+	} else if (rom_id == 2) {
 		bank1_addr = GC5035_BOKEH_OTP_START_ADDR_BANK1;
 		bank2_addr = GC5035_BOKEH_OTP_START_ADDR_BANK2;
 		cal_size = GC5035_BOKEH_OTP_USED_CAL_SIZE;
-	}
-	else if(rom_id == 4) {
+	} else if (rom_id == 4) {
 		bank1_addr = GC5035_UW_OTP_START_ADDR_BANK1;
 		bank2_addr = GC5035_UW_OTP_START_ADDR_BANK2;
 		cal_size = GC5035_UW_OTP_USED_CAL_SIZE;
-	}
-	else if(rom_id == 6) {
+	} else if (rom_id == 6) {
 		bank1_addr = GC5035_MACRO_OTP_START_ADDR_BANK1;
 		bank2_addr = GC5035_MACRO_OTP_START_ADDR_BANK2;
 		cal_size = GC5035_MACRO_OTP_USED_CAL_SIZE;
+	} else {
+		err("unsupported GC5035 OTP rom_id %d\n", rom_id);
+		return -EINVAL;
 	}
 
-	is_vendor_get_module_from_position(position,&module);
-	info("Camera: read cal data from OTPROM (rom_id:%d)\n", rom_id);
+	is_vendor_get_module_from_position(position, &module);
+	if (!module || !module->private_data || !module->pdata) {
+		err("GC5035 OTP module is unavailable (position:%d)\n", position);
+		return -EINVAL;
+	}
 
 	sensor_peri = (struct is_device_sensor_peri *)module->private_data;
-	subdev_cis = sensor_peri->subdev_cis;
 	is_sec_get_sysfs_finfo(&finfo, rom_id);
 	is_sec_get_cal_buf(&buf, rom_id);
 	client = specific->rom_client[rom_id];
+	if (!finfo || !buf || !client || cal_size > finfo->rom_size) {
+		err("invalid GC5035 OTP resources (rom_id:%d, size:%u, rom_size:%u)\n",
+		    rom_id, cal_size, finfo ? finfo->rom_size : 0);
+		return -EINVAL;
+	}
 
 	camera_running = is_vendor_check_camera_running(finfo->rom_power_position);
+	retry = IS_CAL_RETRY_CNT;
 i2c_write_retry_global:
-	if (camera_running == false) {
+	if (!camera_running) {
 		i2c_channel = module->pdata->sensor_i2c_ch;
-		if (i2c_channel < SENSOR_CONTROL_I2C_MAX) {
-			sensor_peri->cis.i2c_lock = &core->i2c_lock[i2c_channel];
-		} else {
+		if (i2c_channel >= SENSOR_CONTROL_I2C_MAX) {
 			warn("%s: wrong cis i2c_channel(%d)", __func__, i2c_channel);
 			ret = -EINVAL;
 			goto exit;
 		}
-		ret = is_sec_set_registers(client, sensor_gc5035_setfile_otp_global, ARRAY_SIZE(sensor_gc5035_setfile_otp_global), position);
+		sensor_peri->cis.i2c_lock = &core->i2c_lock[i2c_channel];
+		ret = is_sec_set_registers(client, sensor_gc5035_setfile_otp_global,
+					   ARRAY_SIZE(sensor_gc5035_setfile_otp_global),
+					   position);
 		if (unlikely(ret)) {
 			err("failed to apply otprom global settings (%d)\n", ret);
 			if (retry >= 0) {
@@ -2922,116 +2945,112 @@ i2c_write_retry_global:
 		}
 	}
 
-	ret = is_sec_set_registers(client, sensor_gc5035_setfile_otp_init, ARRAY_SIZE(sensor_gc5035_setfile_otp_init), position);
+	ret = is_sec_set_registers(client, sensor_gc5035_setfile_otp_init,
+				   ARRAY_SIZE(sensor_gc5035_setfile_otp_init), position);
 	if (unlikely(ret)) {
 		err("failed to apply otprom init setting (%d)\n", ret);
 		ret = -EINVAL;
 		goto exit;
 	}
 
-	/* Read OTP page */
-	ret = is_sensor_addr8_write8(client, GC5035_OTP_PAGE_ADDR, GC5035_OTP_PAGE);
-	ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_HIGH, (GC5035_BANK_SELECT_ADDR >> 8) & 0x1F);
-	ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_LOW, GC5035_BANK_SELECT_ADDR & 0xFF);
+	ret = is_sensor_addr8_write8(client, GC5035_OTP_PAGE_ADDR,
+				     GC5035_OTP_PAGE);
+	ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_HIGH,
+				      (GC5035_BANK_SELECT_ADDR >> 8) & 0x1F);
+	ret |= is_sensor_addr8_write8(client, GC5035_OTP_ACCESS_ADDR_LOW,
+				      GC5035_BANK_SELECT_ADDR & 0xFF);
 	ret |= is_sensor_addr8_write8(client, GC5035_OTP_MODE_ADDR, 0x20);
-	if (unlikely(ret))
-	{
-		err("failed to is_sensor_addr8_write8 (%d)\n", ret);
-		ret = -EINVAL;
-		goto exit;
-	}
-	ret = is_sensor_addr8_read8(client, GC5035_OTP_BUSY_ADDR, &busy_flag);
-	if (unlikely(ret))
-	{
-		err("failed to is_sensor_addr8_read8 (%d)\n", ret);
+	if (unlikely(ret)) {
+		err("failed to select GC5035 OTP bank (%d)\n", ret);
 		ret = -EINVAL;
 		goto exit;
 	}
 
 	retry = IS_CAL_RETRY_CNT;
-
-	while ((busy_flag & 0x2) > 0 && retry > 0) {
-		ret = is_sensor_addr8_read8(client, GC5035_OTP_BUSY_ADDR, &busy_flag);
-		if (unlikely(ret))
-		{
-			err("failed to is_sensor_addr8_read8 (%d)\n", ret);
+	while (retry > 0) {
+		ret = is_sensor_addr8_read8(client, GC5035_OTP_BUSY_ADDR,
+					    &busy_flag);
+		if (unlikely(ret)) {
+			err("failed to read GC5035 OTP status (%d)\n", ret);
 			ret = -EINVAL;
 			goto exit;
 		}
+		if (!(busy_flag & 0x2))
+			break;
 		retry--;
 		msleep(1);
 	}
 
-	if ((busy_flag & 0x1))
-	{
-		err("Sensor OTP_check_flag failed\n");
+	if (busy_flag & 0x3) {
+		err("GC5035 OTP bank selection failed (0x%x)\n", busy_flag);
+		ret = -EIO;
 		goto exit;
 	}
 
-	is_sensor_addr8_read8(client, GC5035_OTP_READ_ADDR, &otp_bank);
-	if (unlikely(ret))
-	{
-		err("failed to is_sensor_addr8_read8 (%d)\n", ret);
+	ret = is_sensor_addr8_read8(client, GC5035_OTP_READ_ADDR, &otp_bank);
+	if (unlikely(ret)) {
+		err("failed to read GC5035 OTP bank (%d)\n", ret);
 		ret = -EINVAL;
 		goto exit;
 	}
 
-	/* select start address */
-	switch(otp_bank) {
-	case 0x01 :
-		start_addr = bank1_addr;
-		break;
-	case 0x03 :
-		start_addr = bank2_addr;
-		break;
-	default :
-		start_addr = bank1_addr;
-		break;
-	}
+	start_addr = otp_bank == 0x03 ? bank2_addr : bank1_addr;
+	info("%s: otp_bank = %d otp_start_addr = %x\n", __func__, otp_bank,
+	     start_addr);
 
-	info("%s: otp_bank = %d otp_start_addr = %x\n", __func__, otp_bank, start_addr);
-
-crc_retry:
-	/* read cal data */
-	info("I2C read cal data\n");
-	ret = is_sec_i2c_read_otp_gc5035(client, buf, start_addr, cal_size);
-	if (unlikely(ret)) {
-		err("failed to read otp gc5035 (%d)\n", ret);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	ret = is_sec_read_otprom_header(rom_id);
-	if (unlikely(ret)) {
-		if (retry >= 0) {
-			retry--;
-			goto crc_retry;
+	retry = IS_CAL_RETRY_CNT;
+	while (retry-- > 0) {
+		ret = is_sec_i2c_read_otp_gc5035(client, buf, start_addr, cal_size);
+		if (unlikely(ret)) {
+			err("failed to read otp gc5035 (%d)\n", ret);
+			ret = -EINVAL;
+			goto exit;
 		}
-		err("OTPROM CRC failed, retry %d", retry);
-	}
-	info("OTPROM CRC passed\n");
 
 #ifdef DEBUG_FORCE_DUMP_ENABLE
-	{
-		char file_path[100];
+		{
+			char file_path[100];
+			loff_t pos = 0;
 
-		loff_t pos = 0;
-
-		memset(file_path, 0x00, sizeof(file_path));
-		snprintf(file_path, sizeof(file_path), "%srom%d_dump.bin", FIMC_IS_FW_DUMP_PATH, rom_id);
-
-		if (write_data_to_file(file_path, buf, finfo->rom_size, &pos) < 0) {
-			info("Failed to dump cal data. rom_id:%d\n", rom_id);
+			memset(file_path, 0x00, sizeof(file_path));
+			snprintf(file_path, sizeof(file_path), "%srom%d_dump.bin",
+				 FIMC_IS_FW_DUMP_PATH, rom_id);
+			if (write_data_to_file(file_path, buf, cal_size, &pos) < 0)
+				info("Failed to dump cal data. rom_id:%d\n", rom_id);
 		}
-	}
 #endif
-	is_sec_parse_rom_info(finfo, buf, rom_id);
+		is_sec_parse_rom_info(finfo, buf, rom_id);
+		if (is_sec_check_cal_crc32(buf, rom_id)) {
+			info("OTPROM CRC passed\n");
+			is_sec_check_module_state(finfo);
+#ifdef CONFIG_SEC_CAL_ENABLE
+			if (is_need_use_standard_cal(rom_id)) {
+				int max_cal_size = is_sec_get_max_cal_size(core, rom_id);
 
-	/* CRC check */
-	if (!is_sec_check_cal_crc32(buf, rom_id) && (retry > 0)) {
+				if (max_cal_size <= 0 || max_cal_size > finfo->rom_size ||
+				    !specific->rom_cal_map_addr[position] ||
+				    max_cal_size >
+				    specific->rom_cal_map_addr[position]->rom_max_cal_size) {
+					err("invalid GC5035 standard calibration size (%d)\n",
+					    max_cal_size);
+					ret = -EINVAL;
+					goto exit;
+				}
+				ret = is_sec_get_cal_buf_rom_data(&buf_rom_data, rom_id);
+				if (ret || !buf_rom_data) {
+					err("GC5035 raw calibration buffer unavailable (rom_id:%d)\n",
+					    rom_id);
+					ret = -EINVAL;
+					goto exit;
+				}
+				memcpy(buf_rom_data, buf, max_cal_size);
+			}
+#endif
+			ret = 0;
+			goto exit;
+		}
 		err("OTP CRC failed (retry:%d)\n", retry);
-		retry--;
-		goto crc_retry;
+		ret = -EINVAL;
 	}
 
 exit:

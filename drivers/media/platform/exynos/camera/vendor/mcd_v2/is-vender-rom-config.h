@@ -19,6 +19,8 @@
 #include "is-vender-rom-config_aas_v71x.h"
 #elif defined(CONFIG_CAMERA_AAS_V51X)
 #include "is-vender-rom-config_aas_v51x.h"
+#elif defined(CONFIG_CAMERA_AAU_V12S)
+#include "is-vender-rom-config_aau_v12s.h"
 #elif defined(CONFIG_CAMERA_XXT_V5)
 #include "is-vender-rom-config_xxt_v5.h"
 #else

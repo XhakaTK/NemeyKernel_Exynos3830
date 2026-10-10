@@ -55,7 +55,7 @@
 static const struct v4l2_subdev_ops subdev_ops;
 
 #if defined(CONFIG_VENDER_MCD_V2)
-//extern const struct is_vender_rom_addr *vender_rom_addr[SENSOR_POSITION_MAX];
+extern const struct is_vender_rom_addr *vender_rom_addr[SENSOR_POSITION_MAX];
 #endif
 
 static const u32 *sensor_gc5035_global;
@@ -2311,6 +2311,10 @@ int cis_gc5035_probe(struct i2c_client *client,
 	struct device_node *dnode;
 	u32 sensor_id = 0;
 	char const *setfile;
+#if defined(CONFIG_VENDER_MCD_V2)
+	struct is_vender_specific *specific;
+	u32 rom_position;
+#endif
 
 	FIMC_BUG(!client);
 	FIMC_BUG(!is_dev);
@@ -2360,6 +2364,32 @@ int cis_gc5035_probe(struct i2c_client *client,
 	cis->device = sensor_id;
 	cis->client = client;
 	sensor_peri->module->client = cis->client;
+
+#if defined(CONFIG_VENDER_MCD_V2)
+	if (of_property_read_bool(dnode, "use_sensor_otp")) {
+		ret = of_property_read_u32(dnode, "rom_position", &rom_position);
+		if (ret) {
+			dev_err(dev, "failed to read OTP ROM position: %d\n", ret);
+		} else if (rom_position >= SENSOR_POSITION_MAX) {
+			dev_err(dev, "invalid OTP ROM position: %u\n", rom_position);
+		} else if (!vender_rom_addr[rom_position]) {
+			dev_err(dev, "no OTP ROM map for position %u\n", rom_position);
+		} else {
+			specific = core->vender.private_data;
+			if (!specific) {
+				dev_err(dev, "camera vendor data is unavailable for OTP\n");
+			} else {
+				specific->rom_client[rom_position] = cis->client;
+				specific->rom_data[rom_position].rom_type = ROM_TYPE_OTPROM;
+				specific->rom_data[rom_position].rom_valid = true;
+				specific->rom_cal_map_addr[rom_position] =
+					vender_rom_addr[rom_position];
+				probe_info("%s: OTP registered for ROM position %u\n",
+					__func__, rom_position);
+			}
+		}
+	}
+#endif
 
 	cis->ctrl_delay = N_PLUS_TWO_FRAME;
 
@@ -2473,6 +2503,7 @@ static const struct of_device_id sensor_cis_gc5035_match[] = {
 	{
 		.compatible = "samsung,exynos-is-cis-gc5035-macro",
 	},
+	{},
 };
 MODULE_DEVICE_TABLE(of, sensor_cis_gc5035_match);
 
