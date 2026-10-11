@@ -23,7 +23,7 @@
  * int exynos_smc_readsfr(unsigned long addr, unsigned long* val)
  */
 
-ENTRY(__exynos_smc)
+SYM_FUNC_START(__exynos_smc)
 #ifdef CONFIG_DEBUG_SNAPSHOT_LOGGING_SMC
 	stp	x29, x30, [sp, #-48]!
 	mov	x29, sp
@@ -57,9 +57,9 @@ save_smc_id:
 	.quad	0x0
 	.previous
 
-ENDPROC(__exynos_smc)
+SYM_FUNC_END(__exynos_smc)
 
-ENTRY(exynos_smc_readsfr)
+SYM_FUNC_START(exynos_smc_readsfr)
 	stp	x1, x3, [sp, #-16]!
 
 	/* Currently, the addresses of SFR are 32bit */
@@ -75,4 +75,4 @@ ENTRY(exynos_smc_readsfr)
 	str	x2, [x1]
 fail_read:
 	ret
-ENDPROC(exynos_smc_readsfr)
+SYM_FUNC_END(exynos_smc_readsfr)
