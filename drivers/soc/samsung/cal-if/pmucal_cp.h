@@ -1,6 +1,5 @@
 #ifndef __PMUCAL_CP_H__
 #define __PMUCAL_CP_H__
-#include <linux/device.h>
 #include "pmucal_common.h"
 
 #if defined(CONFIG_SOC_EXYNOS9820)
@@ -11,7 +10,7 @@
 #define PMU_CP_CTRL_NS_OFFSET	0x3210
 #define PMU_CP_CTRL_S_OFFSET	0x3214
 #define PMU_CP_STATUS_BIT	0x1
-#elif defined(CONFIG_SOC_S5E3830)
+#elif defined(CONFIG_SOC_EXYNOS3830)
 #define PMU_CP_CTRL_NS_OFFSET	0x3090
 #define PMU_CP_CTRL_S_OFFSET	0x3014
 #define PMU_CP_STATUS_BIT	0x1
@@ -50,7 +49,6 @@ struct pmucal_cp {
 };
 
 /* APIs to be supported to PWRCAL interface */
-extern void cp_set_device(struct device *dev);
 extern int pmucal_cp_initialize(void);
 
 extern int pmucal_cp_init(void);
