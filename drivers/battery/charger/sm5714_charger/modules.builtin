@@ -1,0 +1,2 @@
+kernel/drivers/battery/charger/sm5714_charger/sm5714_charger.ko
+kernel/drivers/battery/charger/sm5714_charger/sm5714_charger_oper.ko
