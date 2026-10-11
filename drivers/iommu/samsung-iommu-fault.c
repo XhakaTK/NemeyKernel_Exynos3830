@@ -46,11 +46,6 @@
 #if IS_ENABLED(CONFIG_EXYNOS_CONTENT_PATH_PROTECTION)
 #define SMC_DRM_SEC_SMMU_INFO          (0x820020D0)
 /* secure SysMMU SFR access */
-enum sec_sysmmu_sfr_access_t {
-	SEC_SMMU_SFR_READ,
-	SEC_SMMU_SFR_WRITE,
-};
-
 #define is_secure_info_fail(x)		((((x) >> 16) & 0xffff) == 0xdead)
 static inline u32 read_sec_info(unsigned int addr)
 {
