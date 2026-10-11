@@ -7,8 +7,8 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-
 #include <linux/linkage.h>
+
 
 /*
  * Function signature:
@@ -19,8 +19,8 @@
  *				unsigned long arg4)
  */
 
-ENTRY(exynos_hvc)
+SYM_FUNC_START(exynos_hvc)
 	dsb	sy
 	hvc	#0
 	ret
-ENDPROC(exynos_hvc)
+SYM_FUNC_END(exynos_hvc)
