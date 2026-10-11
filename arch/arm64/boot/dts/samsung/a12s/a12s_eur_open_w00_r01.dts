@@ -6,7 +6,7 @@
 	dtbo-hw_rev_end = <0x20>;
 
 	fragment@smd {
-		target-path = "/";
+		target-path = [2f 00];
 
 		__overlay__ {
 
@@ -3475,7 +3475,7 @@
 		target = <0xffffffff>;
 
 		__overlay__ {
-			bootargs_ext = "root=/dev/ram0 androidboot.hardware=s5e3830 androidboot.boot_devices=12100000.dwmmc0 earlycon=exynos4212,0x13820000 console=ttySAC2,115200";
+			bootargs_ext = [00];
 		};
 	};
 
