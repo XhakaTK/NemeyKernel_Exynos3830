@@ -1047,7 +1047,7 @@ static char *get_date_time_str(void)
 	static char time_data_buf[128] = { 0 };
 
 	ktime_get_real_ts64(&now_time);
-	time64_to_tm(now_time.tv_sec, &rtc_now_time);
+	time64_to_tm(now_time.tv_sec, 0, &rtc_now_time);
 	snprintf(time_data_buf, sizeof(time_data_buf), "%04d%02d%02d-%02d%02d%02d",
 		(rtc_now_time.tm_year + 1900), rtc_now_time.tm_mon + 1,
 		rtc_now_time.tm_mday, rtc_now_time.tm_hour, rtc_now_time.tm_min,
