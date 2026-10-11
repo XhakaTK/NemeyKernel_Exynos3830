@@ -1761,6 +1761,7 @@ static int extern_idle_ip_init(struct device_node *dn)
  */
 static void notify_cpupm_init_to_el3(struct platform_device *pdev)
 {
+#define SMC_CMD_CPUPM_ENABLE		0x82000008
 	/* 0 : Disable 1 : Enable for the second argument*/
 	exynos_smc(SMC_CMD_CPUPM_ENABLE, 1, 0, 0);
 }
