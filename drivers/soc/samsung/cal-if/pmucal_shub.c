@@ -79,6 +79,7 @@ int pmucal_shub_reset_assert(void)
 int pmucal_shub_reset_release_config(void)
 {
 	int ret;
+
 	if (!pmucal_shub_list.reset_release_config) {
 		pr_err("%s there is no sequence element for shub-reset_release_config.\n",
 				PMUCAL_PREFIX);
@@ -154,7 +155,7 @@ out:
  *
  *  Returns 0 on success. Otherwise, negative error code.
  */
-int pmucal_shub_initialize(void)
+int __init pmucal_shub_initialize(void)
 {
 	int ret = 0;
 
