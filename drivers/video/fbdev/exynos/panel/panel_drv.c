@@ -410,6 +410,7 @@ int __set_panel_power(struct panel_device *panel, int power)
 		run_list(panel->dev, "panel_reset_disable");
 
 #ifdef CONFIG_EXYNOS_DECON_LCD_A12S_BLIC_DUAL
+              static int boot_blic_type __maybe_unused = 0;
 		if (boot_blic_type != 1) {
 			if (get_regulator_use_count(NULL, "gpio_lcd_bl_en") >= 2) {
 				panel_info("%s PANEL_I2C_EXIT_SEQ SKIP\n", __func__);
