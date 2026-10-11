@@ -28,8 +28,8 @@
 #include <soc/samsung/exynos-cpupm.h>
 #include <soc/samsung/cal-if.h>
 #include <soc/samsung/exynos-pmu.h>
-#include <soc/samsung/exynos-pm.h>
 #include <soc/samsung/exynos-smc.h>
+#include <soc/samsung/exynos-pm.h>
 
 #if IS_ENABLED(CONFIG_SEC_PM) && IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 #include <linux/muic/common/muic.h>
