@@ -1408,7 +1408,6 @@ static void secdbg_test_stack_corruption_type0(unsigned long cdata)
 
 	pr_info("%s: cdata: %016lx\n", __func__, cdata);
 	if (IS_ENABLED(CONFIG_STACKPROTECTOR_PER_TASK))
-		pr_info("%s: current->stack_canary: %016lx\n", __func__, current->stack_canary);
 	else
 		pr_info("%s: __stack_chk_guard: %016lx\n", __func__, __stack_chk_guard);
 	pr_info("%s: original: [<0x%px>]: %016lx\n", __func__, ptarget, *ptarget);
@@ -1425,8 +1424,6 @@ static void secdbg_test_stack_corruption_type1(unsigned long cdata)
 
 	pr_info("%s: cdata: %016lx\n", __func__, cdata);
 	if (IS_ENABLED(CONFIG_STACKPROTECTOR_PER_TASK))
-		pr_info("%s: current->stack_canary: %016lx\n", __func__, current->stack_canary);
-	else
 		pr_info("%s: __stack_chk_guard: %016lx\n", __func__, __stack_chk_guard);
 	pr_info("%s: original: [<0x%px>]: %016lx\n", __func__, ptarget, *ptarget);
 
