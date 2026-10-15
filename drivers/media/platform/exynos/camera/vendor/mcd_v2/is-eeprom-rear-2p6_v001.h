@@ -2,7 +2,7 @@
 #define IS_EEPROM_REAR_PDAF_2P6_V001_H
 
 /**
- * Reference File:
+ * Reference File: 
  * 20200922_Xcover5_CAM1(Wide_16M_2P6)_EEPROM_Rear_Cal map V008.001_공용.xlsx
  */
 
@@ -55,17 +55,17 @@ const struct is_vender_rom_addr rear_2p6_cal_addr = {
 	.camera_module_es_version                 = 'A',
 	.cal_map_es_version                       = '1',
 	.rom_max_cal_size                         = IS_REAR_MAX_CAL_SIZE,
-
+  
 	.rom_header_cal_data_start_addr           = 0x00,
 	.rom_header_main_module_info_start_addr   = 0x6E,
 	.rom_header_cal_map_ver_start_addr        = 0x90,
 	.rom_header_project_name_start_addr       = 0x98,
 	.rom_header_module_id_addr                = 0xAE,
 	.rom_header_main_sensor_id_addr           = 0xB8,
-
+  
 	.rom_header_sub_module_info_start_addr    = -1,
 	.rom_header_sub_sensor_id_addr            = -1,
-
+  
 	.rom_header_main_header_start_addr        = 0x00,
 	.rom_header_main_header_end_addr          = 0x04,
 	.rom_header_main_oem_start_addr           = 0x30, //LSI AF Cal.data in Cal Map Excel sheet
@@ -80,20 +80,20 @@ const struct is_vender_rom_addr rear_2p6_cal_addr = {
 	.rom_header_dual_cal_end_addr             = 0x24,
 	.rom_header_pdaf_cal_start_addr           = 0x38, //LSI PDAF Cal.Data
 	.rom_header_pdaf_cal_end_addr             = 0x3C,
-
-	.rom_header_sub_oem_start_addr            = -1,
-	.rom_header_sub_oem_end_addr              = -1,
+  
+	.rom_header_sub_oem_start_addr            = -1,	
+	.rom_header_sub_oem_end_addr              = -1,	
 	.rom_header_sub_awb_start_addr            = -1,
 	.rom_header_sub_awb_end_addr              = -1,
 	.rom_header_sub_shading_start_addr        = -1,
-	.rom_header_sub_shading_end_addr          = -1,
-
+	.rom_header_sub_shading_end_addr          = -1,	
+  
 	.rom_header_main_mtf_data_addr            = -1,
 	.rom_header_sub_mtf_data_addr             = -1,
-
+  
 	.rom_header_checksum_addr                 = 0xFC,
 	.rom_header_checksum_len                  = REAR_HEADER_CHECKSUM_LEN,
-
+  
 	.rom_oem_af_inf_position_addr             = 0x11B0,
 	.rom_oem_af_macro_position_addr           = 0x11B8,
 	.rom_oem_module_info_start_addr           = 0x11B0,
@@ -103,19 +103,19 @@ const struct is_vender_rom_addr rear_2p6_cal_addr = {
 	.rom_awb_module_info_start_addr           = -1,
 	.rom_awb_checksum_addr                    = 0x1EAC,
 	.rom_awb_checksum_len                     = REAR_AWB_CHECKSUM_LEN,
-
+  
 	.rom_shading_module_info_start_addr       = -1,
 	.rom_shading_checksum_addr                = 0x22AC,
-	.rom_shading_checksum_len                 = REAR_SHADING_CHECKSUM_LEN,
-
+	.rom_shading_checksum_len                 = REAR_SHADING_CHECKSUM_LEN,		
+  
 	.rom_sensor_cal_module_info_start_addr    = -1,
 	.rom_sensor_cal_checksum_addr             = -1,
 	.rom_sensor_cal_checksum_len              = -1,
-
+  
 	.rom_dual_module_info_start_addr          = 0x0180,
 	.rom_dual_checksum_addr                   = 0x099C,
 	.rom_dual_checksum_len                    = REAR_DUAL_CHECKSUM_LEN,
-
+  
 	.rom_pdaf_module_info_start_addr          = 0x1230,
 	.rom_pdaf_checksum_addr                   = 0x19EC,
 	.rom_pdaf_checksum_len                    = REAR_PDAF_CHECKSUM_LEN,

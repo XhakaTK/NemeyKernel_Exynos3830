@@ -1227,6 +1227,7 @@ struct panel_dimming_info *find_panel_dimming(struct panel_info *panel_data, cha
 int excute_seqtbl_nolock(struct panel_device *panel, struct seqinfo *seqtbl, int index);
 int panel_do_seqtbl(struct panel_device *panel, struct seqinfo *seqtbl);
 int panel_do_seqtbl_by_index_nolock(struct panel_device *panel, int index);
+int get_blic_type(void);
 int panel_do_seqtbl_by_index(struct panel_device *panel, int index);
 struct resinfo *find_panel_resource(struct panel_info *panel, char *name);
 bool panel_resource_initialized(struct panel_info *panel_data, char *name);

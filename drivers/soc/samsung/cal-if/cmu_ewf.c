@@ -16,7 +16,7 @@
 #include <linux/clk.h>
 #include <linux/clkdev.h>
 #include <linux/clk-provider.h>
-#include <linux/debug-snapshot.h>
+#include <soc/samsung/debug-snapshot.h>
 
 #include <soc/samsung/cmu_ewf.h>
 

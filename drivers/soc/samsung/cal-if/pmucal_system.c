@@ -1,4 +1,5 @@
 #include "pmucal_system.h"
+#include <soc/samsung/debug-snapshot.h>
 #include "pmucal_rae.h"
 #include "pmucal_powermode.h"
 #include <soc/samsung/exynos-debug.h>

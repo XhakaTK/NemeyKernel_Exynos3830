@@ -1,12 +1,12 @@
 /dts-v1/;
 
 / {
-	compatible = "SAMSUNG\0 A12S_EUR_OPEN\0 EXYNOS850_R";
+	compatible = "SAMSUNG\0 A12S_EUR_OPEN\0 EXYNOS850";
 	dtbo-hw_rev = <0x00>;
 	dtbo-hw_rev_end = <0x00>;
 
 	fragment@smd {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 
@@ -45,8 +45,8 @@
 				input_booster {
 					status = "okay";
 					compatible = "input_booster";
-					max_resource_count = [37 00];
-					max_cluster_count = [33 00];
+					max_resource_count = "7";
+					max_cluster_count = "3";
 					#address-cells = <0x01>;
 					#size-cells = <0x00>;
 					cpu_cluster_policy = "4,0";
@@ -1346,7 +1346,7 @@
 	};
 
 	fragment@model {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 			#address-cells = <0x02>;
@@ -1538,7 +1538,7 @@
 	};
 
 	fragment@modemif {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 			#address-cells = <0x02>;
@@ -2050,7 +2050,7 @@
 	};
 
 	fragment@inputbooster {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 
@@ -2213,7 +2213,7 @@
 	};
 
 	fragment@common {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 			#address-cells = <0x02>;
@@ -3410,7 +3410,7 @@
 	};
 
 	fragment@lcd {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 
@@ -3445,19 +3445,19 @@
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\01000\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\01000";
+					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
 				};
 
 				panel_power_disable {
-					type = "delay,usleep\03000\0regulator,disable\0gpio_lcd_bl_en\0delay,usleep\05000\0regulator,disable\0vdd_ldo28\0delay,msleep\030";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 6d 73 6c 65 65 70 18 00];
 				};
 
 				panel_reset {
-					type = "delay,usleep\010000\0regulator,enable\0gpio_lcd_rst\0delay,usleep\01000\0regulator,disable\0gpio_lcd_rst\0delay,usleep\03500\0regulator,enable\0gpio_lcd_rst\0delay,usleep\010000";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 1d 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 30 00];
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep\060\0regulator,disable\0gpio_lcd_rst\0delay,usleep\05000";
+					type = "delay,msleep0\0regulator,disable\0gpio_lcd_rst\0delay,usleep(00";
 				};
 			};
 
@@ -3499,19 +3499,19 @@
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\01000\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\01000";
+					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
 				};
 
 				panel_power_disable {
-					type = "delay,usleep\03000\0regulator,disable\0gpio_lcd_bl_en\0delay,usleep\05000\0regulator,disable\0vdd_ldo28\0delay,usleep\015000";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 0d 30 30 30 00];
 				};
 
 				panel_reset {
-					type = "delay,usleep\04000\0regulator,enable\0gpio_lcd_rst\0delay,usleep\01000\0regulator,disable\0gpio_lcd_rst\0delay,usleep\01000\0regulator,enable\0gpio_lcd_rst\0delay,msleep\025";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 20 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 6d 73 6c 65 65 70 15 00];
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep\090\0regulator,disable\0gpio_lcd_rst\0delay,usleep\05000";
+					type = "delay,msleep\090\0regulator,disable\0gpio_lcd_rst\0delay,usleep(00";
 				};
 			};
 
@@ -3613,19 +3613,19 @@
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\01000\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\01000";
+					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
 				};
 
 				panel_power_disable {
-					type = "delay,usleep\03000\0regulator,disable\0gpio_lcd_bl_en\0delay,usleep\05000\0regulator,disable\0vdd_ldo28\0delay,usleep\015000";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 0d 30 30 30 00];
 				};
 
 				panel_reset {
-					type = "delay,usleep\01000\0regulator,enable\0gpio_lcd_rst\0delay,usleep\02000\0regulator,disable\0gpio_lcd_rst\0delay,usleep\02000\0regulator,enable\0gpio_lcd_rst\0delay,msleep\020";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 10 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 10 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 6d 73 6c 65 65 70 10 00];
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep\070\0regulator,disable\0gpio_lcd_rst\0delay,usleep\010000";
+					type = "delay,msleep8\0regulator,disable\0gpio_lcd_rst\0delay,usleep\b000";
 				};
 			};
 
@@ -3667,19 +3667,19 @@
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\01000\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\01000";
+					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
 				};
 
 				panel_power_disable {
-					type = "delay,usleep\03000\0regulator,disable\0gpio_lcd_bl_en\0delay,usleep\05000\0regulator,disable\0vdd_ldo28\0delay,usleep\015000";
+					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 0d 30 30 30 00];
 				};
 
 				panel_reset {
-					type = "delay,usleep\01000\0regulator,enable\0gpio_lcd_rst\0delay,usleep\01000\0regulator,disable\0gpio_lcd_rst\0delay,usleep\01000\0regulator,enable\0gpio_lcd_rst\0delay,msleep\055";
+					type = "delay,usleep\b00\0regulator,enable\0gpio_lcd_rst\0delay,usleep\b00\0regulator,disable\0gpio_lcd_rst\0delay,usleep\b00\0regulator,enable\0gpio_lcd_rst\0delay,msleep-";
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep\090\0regulator,disable\0gpio_lcd_rst\0delay,usleep\010000";
+					type = "delay,msleep\090\0regulator,disable\0gpio_lcd_rst\0delay,usleep\b000";
 				};
 			};
 
@@ -4386,7 +4386,7 @@
 				compatible = "samsung,abox-ext-bin";
 				samsung,name = "APDV_AUDIO_SLSI.bin";
 				samsung,area = <0x01>;
-				samsung,offset = <0x656000>;
+				samsung,offset = "\0e`";
 				samsung,changable;
 				phandle = <0x80>;
 			};
@@ -4395,7 +4395,7 @@
 				compatible = "samsung,abox-ext-bin";
 				samsung,name = "SoundBoosterParam.bin";
 				samsung,area = <0x01>;
-				samsung,offset = <0x6d6000>;
+				samsung,offset = "\0m`";
 				samsung,changable;
 				phandle = <0x81>;
 			};
@@ -4529,7 +4529,7 @@
 	};
 
 	fragment@camera {
-		target-path = [2f 00];
+		target-path = "/";
 
 		__overlay__ {
 

@@ -67,8 +67,10 @@
 #include "../../../battery/common/sec_charging_common.h"
 #endif
 
+#include <linux/sec_class.h>
 
 static struct sm5714_muic_data *static_data;
+struct device *switch_device;
 
 static int com_to_open(struct sm5714_muic_data *muic_data);
 static void sm5714_muic_handle_attach(struct sm5714_muic_data *muic_data,
@@ -2246,6 +2248,11 @@ static int of_sm5714_muic_dt(struct device *dev,
 #endif /* CONFIG_OF */
 
 /* if need to set sm5714 pdata */
+struct muic_platform_data muic_pdata = {
+	.uart_path = MUIC_PATH_UART_AP,
+	.usb_path = MUIC_PATH_USB_AP,
+};
+
 static const struct of_device_id sm5714_muic_match_table[] = {
 	{ .compatible = "sm5714-muic",},
 	{},
@@ -2347,12 +2354,11 @@ static int sm5714_muic_probe(struct platform_device *pdev)
 	muic_data->wake_lock = wakeup_source_register(NULL, "muic_wake");
 #endif
 
-#if IS_MODULE(CONFIG_MUIC_NOTIFIER)
-		ret = muic_data->pdata->init_gpio_cb(get_switch_sel());
-#else
 	if (muic_data->pdata->init_gpio_cb)
-		ret = muic_data->pdata->init_gpio_cb();
-#endif
+		ret = muic_data->pdata->init_gpio_cb(muic_data->pdata,
+				get_switch_sel());
+	else
+		ret = 0;
 	if (ret) {
 		pr_err("[%s:%s] failed to init gpio(%d)\n",
 				MUIC_DEV_NAME, __func__, ret);
@@ -2360,6 +2366,12 @@ static int sm5714_muic_probe(struct platform_device *pdev)
 	}
 
 	/* create sysfs group */
+	switch_device = sec_dev_get_by_name("switch");
+	if (!switch_device) {
+		switch_device = sec_device_create(NULL, "switch");
+		if (IS_ERR(switch_device))
+			switch_device = NULL;
+	}
 	if (switch_device) {
 		ret = sysfs_create_group(&switch_device->kobj, &sm5714_muic_group);
 		if (ret) {
@@ -2368,6 +2380,10 @@ static int sm5714_muic_probe(struct platform_device *pdev)
 			goto fail;
 		}
 		dev_set_drvdata(switch_device, muic_data);
+		muic_data->pdata->switch_device = switch_device;
+	} else {
+		pr_err("[%s:%s] failed to get switch device, sysfs skipped\n",
+				MUIC_DEV_NAME, __func__);
 	}
 
 	ret = sm5714_init_rev_info(muic_data);

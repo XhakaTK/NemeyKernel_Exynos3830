@@ -2,6 +2,7 @@
 
 # CAL
 obj-$(CONFIG_CAL_IF)		+= cal-if/
+obj-$(CONFIG_CAL_IF)		+= exynos-smc-call.o
 obj-$(CONFIG_EXYNOS_PD)         += exynos-pd.o
 obj-$(CONFIG_EXYNOS_PD_EL3)       += exynos-el3_mon.o
 obj-$(CONFIG_EXYNOS_PD_DBG)	+= exynos-pd-dbg.o

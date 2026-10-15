@@ -253,17 +253,8 @@ subdir-ccflags-$(CONFIG_PABLO_V8_10_0) += -I$(srctree)/drivers/media/platform/ex
 subdir-ccflags-$(CONFIG_PABLO_V8_20_0) += -I$(srctree)/drivers/media/platform/exynos/camera/vendor/mcd_v2/v8_20_0
 endif
 
-ifeq ($(CONFIG_VENDER_MCD_V2),y)
-fimc-is-$(CONFIG_VENDER_MCD_V2) +=	vendor/mcd_v2/is-vender.o \
-								vendor/mcd_v2/is-vender-caminfo.o \
-								vendor/mcd_v2/is-sec-define.o \
-								vendor/mcd_v2/crc32.o \
-								vendor/mcd_v2/is-sysfs.o
-
-fimc-is-$(CONFIG_OIS_USE)	+= vendor/mcd_v2/is-device-ois_common.o
-fimc-is-$(CONFIG_AF_HOST_CONTROL)	+= vendor/mcd_v2/is-device-af.o
-fimc-is-$(CONFIG_OIS_USE_RUMBA_S4) += vendor/mcd_v2/is-device-ois_s4.o
-fimc-is-$(CONFIG_OIS_USE_RUMBA_SA) += vendor/mcd_v2/is-device-ois_sa.o
-endif
+# vendor/mcd_v2 objects are built via the vendor/ -> mcd_v2/ Makefile descent
+# (obj-$(CONFIG_VENDER_MCD_V2) += mcd_v2/); do not also list them in fimc-is-,
+# otherwise built-in.a gets duplicate symbols.
 
 subdir-ccflags-y += -I$(srctree)/drivers/media/platform/exynos/camera-pp

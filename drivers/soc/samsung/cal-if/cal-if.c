@@ -1,7 +1,7 @@
 #include <linux/module.h>
-#include <linux/debug-snapshot.h>
-#include <soc/samsung/ect_parser.h>
 #include <soc/samsung/cal-if.h>
+#include <soc/samsung/debug-snapshot.h>
+#include <soc/samsung/ect_parser.h>
 
 #include "pwrcal-env.h"
 #include "pwrcal-rae.h"
@@ -322,6 +322,64 @@ extern int cal_is_lastcore_detecting(unsigned int cpu)
 int cal_dfs_get_asv_table(unsigned int id, unsigned int *table)
 {
 	return fvmap_get_voltage_table(id, table);
+}
+
+#if IS_ENABLED(CONFIG_SHUB_PMUCAL)
+int cal_chub_reset_assert(void)
+{
+	return pmucal_shub_reset_assert();
+}
+
+int cal_chub_reset_release_config(void)
+{
+	return pmucal_shub_reset_release_config();
+}
+
+int cal_chub_reset_release(void)
+{
+	return pmucal_shub_reset_release();
+}
+#endif
+
+/* layout-compatible with callers' freq/volt pair struct (e.g. exynos-acme.c) */
+struct cal_freq_volt {
+	unsigned int freq;
+	unsigned int volt;
+};
+
+int cal_dfs_get_freq_volt_table(unsigned int id, void *table,
+				unsigned int table_size)
+{
+	struct cal_freq_volt *fv_table = table;
+	extern void __iomem *fvmap_base;
+	struct fvmap_header *fvmap_header = fvmap_base;
+	struct rate_volt_header *rate_volt;
+	int idx, i, j;
+	int num_of_lv;
+
+	if (!IS_ACPM_VCLK(id))
+		return -EINVAL;
+
+	idx = GET_IDX(id);
+	num_of_lv = fvmap_header[idx].num_of_lv;
+	rate_volt = fvmap_base + fvmap_header[idx].o_ratevolt;
+
+	for (i = 0; i < table_size; i++) {
+		int found = 0;
+
+		for (j = 0; j < num_of_lv; j++) {
+			if ((unsigned int)rate_volt->table[j].rate !=
+			    fv_table[i].freq)
+				continue;
+			fv_table[i].volt = rate_volt->table[j].volt;
+			found = 1;
+			break;
+		}
+		if (!found)
+			return -EINVAL;
+	}
+
+	return 0;
 }
 
 void cal_dfs_set_volt_margin(unsigned int id, int volt)
