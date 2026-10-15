@@ -1407,9 +1407,6 @@ static void secdbg_test_stack_corruption_type0(unsigned long cdata)
 	volatile unsigned long *ptarget = (unsigned long *)data_array + SZ_STACK_FP;
 
 	pr_info("%s: cdata: %016lx\n", __func__, cdata);
-	if (IS_ENABLED(CONFIG_STACKPROTECTOR_PER_TASK))
-	else
-		pr_info("%s: __stack_chk_guard: %016lx\n", __func__, __stack_chk_guard);
 	pr_info("%s: original: [<0x%px>]: %016lx\n", __func__, ptarget, *ptarget);
 
 	*ptarget = cdata;
@@ -1423,8 +1420,6 @@ static void secdbg_test_stack_corruption_type1(unsigned long cdata)
 	volatile unsigned long *ptarget = (unsigned long *)data_array + SZ_STACK_SP;
 
 	pr_info("%s: cdata: %016lx\n", __func__, cdata);
-	if (IS_ENABLED(CONFIG_STACKPROTECTOR_PER_TASK))
-		pr_info("%s: __stack_chk_guard: %016lx\n", __func__, __stack_chk_guard);
 	pr_info("%s: original: [<0x%px>]: %016lx\n", __func__, ptarget, *ptarget);
 
 	*ptarget = cdata;

@@ -32,3 +32,4 @@ else
 obj-$(CONFIG_SOC_EXYNOS9830_EVT0)            += exynos9830_evt0/cal_data.o
 endif
 obj-$(CONFIG_SOC_EXYNOS3830)			+= exynos3830/cal_data.o
+obj-$(CONFIG_SOC_S5E3830)			+= s5e3830/cal_data.o

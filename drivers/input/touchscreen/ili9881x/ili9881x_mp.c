@@ -856,7 +856,7 @@ static int ilitek_tddi_mp_ini_parser(const char *path)
 
 	if (f != NULL) {
 		old_fs = get_fs();
-		set_fs(get_ds());
+		set_fs(KERNEL_DS);
 		vfs_read(f, tmp, fsize, &pos);
 		set_fs(old_fs);
 		tmp[fsize] = 0x0;

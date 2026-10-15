@@ -39,7 +39,7 @@ struct rom_standard_cal_data front_gc5035_standard_cal_info = {
 	.rom_awb_end_addr                       = 0x5F,
 	.rom_shading_start_addr                 = 0x62,
 	.rom_shading_end_addr                   = 0xEA,
-
+	
 	.rom_awb_sec2lsi_start_addr             = 0x58,
 	.rom_awb_sec2lsi_end_addr               = 0x5F,
 	.rom_awb_sec2lsi_checksum_addr          = 0x64,

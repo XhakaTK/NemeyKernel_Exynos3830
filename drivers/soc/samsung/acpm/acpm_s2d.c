@@ -18,7 +18,7 @@
 #include <linux/debugfs.h>
 #include <linux/slab.h>
 #include <linux/sched/clock.h>
-#include <linux/debug-snapshot.h>
+#include <soc/samsung/debug-snapshot.h>
 #include <soc/samsung/exynos-pmu.h>
 
 #define RESET_SEQUENCER_CONFIGURATION		(0x0500)

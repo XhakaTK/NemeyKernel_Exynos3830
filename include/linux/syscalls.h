@@ -1333,6 +1333,13 @@ static inline int ksys_close(unsigned int fd)
 	return __close_fd(current->files, fd);
 }
 
+/* vendor driver helpers (camera, touchscreen) */
+long ksys_open(const char __user *filename, int flags, umode_t mode);
+long ksys_access(const char __user *filename, int mode);
+long ksys_mkdir(const char __user *pathname, umode_t mode);
+long ksys_unlink(const char __user *pathname);
+long ksys_rmdir(const char __user *pathname);
+
 extern long do_sys_truncate(const char __user *pathname, loff_t length);
 
 static inline long ksys_truncate(const char __user *pathname, loff_t length)

@@ -1,3 +1,4 @@
+#include <soc/samsung/debug-snapshot.h>
 #include "pmucal_local.h"
 #include "pmucal_rae.h"
 #include <soc/samsung/exynos-debug.h>

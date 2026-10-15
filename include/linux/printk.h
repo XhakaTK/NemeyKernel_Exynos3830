@@ -359,6 +359,7 @@ extern int kptr_restrict;
  */
 #define pr_warn(fmt, ...) \
 	printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_warning pr_warn
 /**
  * pr_notice - Print a notice-level message
  * @fmt: format string

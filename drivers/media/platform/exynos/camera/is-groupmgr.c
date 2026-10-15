@@ -2651,8 +2651,8 @@ int is_group_buffer_queue(struct is_groupmgr *groupmgr,
 		struct camera2_stream *stream = (struct camera2_stream *)frame->shot_ext;
 
 		if (IS_ENABLED(CHAIN_USE_STRIPE_REGION_NUM_META)
-			&& stream->stripe_region_num) {
-			frame->stripe_info.region_num = stream->stripe_region_num;
+                      && 0 /* stream->stripe_region_num */) {
+//			frame->stripe_info.region_num = stream->stripe_region_num;
 		} else
 #endif
 		if ((frame->shot_ext->node_group.leader.input.cropRegion[2] > (group->leader.constraints_width - sram_sum))

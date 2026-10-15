@@ -935,6 +935,7 @@ static void itmon_report_traceinfo(struct itmon_dev *itmon,
 	/* SEC DEBUG FEATURE */
 	int acon = (itmon_get_dpm_policy(itmon) > 0) ? 1 : 0;
 	/* SEC DEBUG FEATURE */
+
 	if (!info->dirty)
 		return;
 
@@ -1003,7 +1004,7 @@ static void itmon_report_pathinfo(struct itmon_dev *itmon,
 	/* SEC DEBUG FEATURE */
 	int acon = (itmon_get_dpm_policy(itmon) > 0) ? 1 : 0;
 	/* SEC DEBUG FEATURE */
-	
+
 	if (BIT_PRT_CHK_ERR_OCCURRED(data->prt_chk_info) &&
 		(data->prt_chk_info & GENMASK(8, 1)))
 		return;

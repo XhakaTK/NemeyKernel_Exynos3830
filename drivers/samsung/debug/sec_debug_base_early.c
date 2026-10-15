@@ -96,7 +96,6 @@ dss_extern_get_log_by_cpu(work);
 dss_extern_get_log_by_cpu(cpuidle);
 dss_extern_get_log_by_cpu(freq);
 dss_extern_get_log_by_cpu(irq);
-dss_extern_get_log(thermal);
 dss_extern_get_log(acpm);
 
 static void secdbg_base_get_kevent_info(struct ess_info_offset *p, int type)

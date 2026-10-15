@@ -41,11 +41,6 @@
 		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);		\
 	} while (0)
 
-enum muic_op_mode {
-	OPMODE_MUIC = 0<<0,
-	OPMODE_PDIC = 1<<0,
-};
-
 /* Slave addr = 0x4A: MUIC */
 enum ioctl_cmd {
 	GET_COM_VAL = 0x01,

@@ -276,6 +276,11 @@ typedef enum {
 /* muic common callback driver internal data structure
  * that setted at muic-core.c file
  */
+enum muic_op_mode {
+	OPMODE_MUIC = 0<<0,
+	OPMODE_PDIC = 1<<0,
+};
+
 struct muic_platform_data {
 	void *drv_data;
 	void *muic_if;
@@ -298,7 +303,11 @@ struct muic_platform_data {
 	bool dcd_timeout;
 	int afc_disabled_updated;
 
-#ifdef CONFIG_MUIC_HV_FORCE_LIMIT
+#if IS_ENABLED(CONFIG_MUIC_SUPPORT_PDIC)
+	unsigned char opmode;
+#endif
+
+#if IS_ENABLED(CONFIG_MUIC_HV_FORCE_LIMIT)
 	int hv_sel;
 	int silent_chg_change_state;
 #endif
@@ -348,6 +357,9 @@ struct muic_platform_data {
 
 	/* muic check charger init function */
 	int (*muic_hv_charger_init_cb)(void);
+
+	/* muic afc set voltage function */
+	int (*muic_afc_set_voltage_cb)(int voltage);
 
 	/* muic set hiccup mode function */
 	int (*muic_set_hiccup_mode_cb)(int on_off);
@@ -520,9 +532,7 @@ enum power_supply_lsi_property {
 	POWER_SUPPLY_LSI_PROP_RR_ENABLE,
 	POWER_SUPPLY_LSI_PROP_PM_FACTORY,
 	POWER_SUPPLY_LSI_PROP_PCP_CLK,
-#if IS_ENABLED(CONFIG_MFD_S2MU106) || defined(CONFIG_BATTERY_GKI)
 	POWER_SUPPLY_LSI_PROP_MAX,
-#endif
 };
 
 #ifdef CONFIG_IFCONN_NOTIFIER

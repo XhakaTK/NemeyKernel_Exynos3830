@@ -1,3 +1,4 @@
+#include <soc/samsung/debug-snapshot.h>
 /*
  * Copyright (c) 2018 Park Bumgyu, Samsung Electronics Co., Ltd <bumgyu.park@samsung.com>
  *
