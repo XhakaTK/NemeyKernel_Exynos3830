@@ -345,13 +345,17 @@ DTC_FLAGS += $(DTC_FLAGS_$(basetarget))
 
 show_dtc_error =                                                          \
 (                                                                         \
-	cat $1;                                                           \
-	for err in "$$(cat $1 | grep 'Error:')"; do                       \
+	cat $1 2>/dev/null;                                               \
+	grep -E '^[^ ]+:[0-9]+[.:[]' $1 2>/dev/null                       \
+	| while IFS= read -r err; do                                      \
 	   echo "See more detail error as below:";                        \
-           cat $$(echo $$err | cut -d':' -f2)                             \
-	   | awk '{printf("ERROR: %6d  %s\n"), NR, $$0}'                  \
-	   | head -n $$(echo $$err | grep -Eo ':[0-9]+' | cut -d':' -f2)  \
-	   | tail -n 2;                                                   \
+	   f=$$(echo "$$err" | cut -d':' -f1);                            \
+	   n=$$(echo "$$err" | cut -d':' -f2 | sed 's/[^0-9].*//');       \
+	   if [ ! -s "$$f" ]; then f=$<; fi;                              \
+	   if [ ! -s "$$f" ]; then f=$1; fi;                              \
+	   if [ -z "$$n" ]; then n=1; fi;                                 \
+	   head -n "$$n" "$$f" 2>/dev/null                                \
+	   | awk '{printf("ERROR: %6d  %s\n"), NR, $$0}' | tail -n 2;     \
 	done;                                                             \
 	rm $1;                                                            \
 	false;                                                            \
