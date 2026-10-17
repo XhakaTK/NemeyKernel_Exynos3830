@@ -85,7 +85,7 @@ config SERIAL_EARLYCON_ARM_SEMIHOST
 	  with "earlycon=smh" on the kernel command line. The console is
 	  enabled when early_param is processed.
 
-	  config SERIAL_EARLYCON_RAMCON
+config SERIAL_EARLYCON_RAMCON
 	bool "Early console into a RAM buffer"
 	depends on ARM64
 	select SERIAL_CORE
