@@ -1153,6 +1153,7 @@
 						regulator-ramp-delay = <0x2ee0>;
 						regulator-initial-mode = <0x03>;
 						regulator-boot-on;
+						regulator-always-on;
 						phandle = <0x69>;
 					};
 
