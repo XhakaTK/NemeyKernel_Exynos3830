@@ -2117,6 +2117,7 @@ static int exynos_sound_remove(struct platform_device *pdev)
 #if IS_ENABLED(CONFIG_OF)
 static const struct of_device_id exynos_sound_of_match[] = {
 	{ .compatible = "samsung,exynos3830-aud3004x", },
+	{ .compatible = "samsung,exynos3830-madera", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, exynos_sound_of_match);

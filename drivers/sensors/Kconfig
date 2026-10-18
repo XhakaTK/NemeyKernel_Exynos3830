@@ -83,3 +83,19 @@ config SENSORS_A96T3X6_M12_KOR
 	default n
 	help
 	  If you say yes here if you use A96T3X6 for M12 KOR.
+
+config SENSORS_SX9360
+	depends on I2C
+	tristate "SX9360 driver"
+	default n
+	help
+	  Say Y here if you use sx9360.
+	  This option enables grip sensors using
+	  SemTech sx9360 device driver.
+
+config SENSORS_SX9360_SUB
+	depends on I2C
+	tristate "SX9360 sub driver"
+	default n
+	help
+	  Say Y here if you use sx9360 sub.

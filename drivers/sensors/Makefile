@@ -5,3 +5,5 @@ obj-$(CONFIG_SENSORS)		+= sensors_core.o
 obj-$(CONFIG_SENSORS_A96T3X6)		+= a96t3x6.o
 obj-$(CONFIG_SENSORS_A96T3X6_SUB)	+= a96t3x6_sub.o
 obj-$(CONFIG_SENSORS_ISG5320A)		+= isg5320a.o
+obj-$(CONFIG_SENSORS_SX9360)	+= sx9360.o
+obj-$(CONFIG_SENSORS_SX9360_SUB)	+= sx9360_sub.o
