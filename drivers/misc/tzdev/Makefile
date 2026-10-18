@@ -67,6 +67,9 @@ ccflags-y += -DTZDEV_BOOST_CLUSTER_1
 else ifeq ($(CONFIG_SOC_EXYNOS3830), y)
 tzdev-$(CONFIG_ION_FD2PHYS)		+= extensions/ion_fd2phys_v1.o
 ccflags-y += -DTZDEV_BOOST_CLUSTER_1
+else ifeq ($(CONFIG_SOC_S5E3830), y)
+tzdev-$(CONFIG_ION_FD2PHYS)		+= extensions/ion_fd2phys_v1.o
+ccflags-y += -DTZDEV_BOOST_CLUSTER_1
 else ifeq ($(CONFIG_ARCH_RANCHU), y)
 tzdev-$(CONFIG_ION_FD2PHYS)		+= extensions/ion_fd2phys_v1.o
 else

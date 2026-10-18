@@ -21,7 +21,7 @@
 #include <linux/fs.h>
 #include <linux/init.h>
 
-#if defined(CONFIG_ARCH_RANCHU)
+#if defined(CONFIG_ARCH_RANCHU) || defined(CONFIG_SOC_S5E3830)
 #include <linux/ion.h>
 #else
 #include "../../../staging/android/ion/ion.h"

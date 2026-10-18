@@ -1148,12 +1148,15 @@ static void is_ion_deinit(void *ctx)
 	vfree(alloc_ctx);
 }
 
+/* Private selector: routes the allocation to the secure heap. Not an ION heap flag. */
+#define ION_EXYNOS_FLAG_PROTECTED	BIT(16)
+
 static struct is_priv_buf *is_ion_alloc(void *ctx,
 		size_t size, const char *heapname, unsigned int flags)
 {
 	struct is_ion_ctx *alloc_ctx = ctx;
 	struct is_priv_buf *buf;
-	unsigned int heapmask;
+	unsigned int heapmask, ion_flags = flags & ~ION_EXYNOS_FLAG_PROTECTED;
 	int ret = 0;
 
 	buf = vzalloc(sizeof(*buf));
@@ -1163,7 +1166,7 @@ static struct is_priv_buf *is_ion_alloc(void *ctx,
 	size = PAGE_ALIGN(size);
 
 	heapmask = (flags & ION_EXYNOS_FLAG_PROTECTED) ? alloc_ctx->heapmask_s : alloc_ctx->heapmask;
-	buf->dma_buf = ion_alloc(size, heapmask, flags ? flags : alloc_ctx->flags);
+	buf->dma_buf = ion_alloc(size, heapmask, ion_flags ? ion_flags : alloc_ctx->flags);
 	if (IS_ERR(buf->dma_buf)) {
 		ret = -ENOMEM;
 		goto err_alloc;
