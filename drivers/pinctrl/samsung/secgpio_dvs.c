@@ -161,7 +161,10 @@ EXPORT_SYMBOL_GPL(gpio_dvs_check_sleepgpio);
 
 #ifdef CONFIG_OF
 static const struct of_device_id secgpio_dvs_dt_match[] = {
+	/* s5e3830 e o nome interno do Exynos850; o overlay de produto publica o nome comercial. */
 	{ .compatible = "samsung,s5e3830-secgpio-dvs",
+		.data = (void *)&s5e3830_secgpio_dvs_data },
+	{ .compatible = "samsung,exynos850-secgpio-dvs",
 		.data = (void *)&s5e3830_secgpio_dvs_data },
 	{ },
 };
