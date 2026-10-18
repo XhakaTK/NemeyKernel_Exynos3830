@@ -252,6 +252,7 @@ int exynos_bcm_dbg_ipc_send_data(enum exynos_bcm_dbg_ipc_type ipc_type,
 				struct exynos_bcm_dbg_data *data,
 				unsigned int *cmd);
 int exynos_bcm_dbg_pd_sync(unsigned int cal_pdid, bool on);
+extern int (*exynos_cal_pd_bcm_sync)(unsigned int cal_pdid, bool on);
 void exynos_bcm_dbg_start(void);
 void exynos_bcm_dbg_stop(unsigned int bcm_stop_owner);
 #else

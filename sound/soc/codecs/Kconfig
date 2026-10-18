@@ -1814,4 +1814,8 @@ config SND_SMARTPA_AW8896
 	help
 	  This option enables support for aw8896 series Smart PA.
 
+config SND_SOC_SMA1303
+	tristate "SMA1303 speaker amplifier"
+	default n
+
 endmenu
