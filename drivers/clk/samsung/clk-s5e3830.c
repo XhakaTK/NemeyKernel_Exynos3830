@@ -342,6 +342,7 @@ static struct init_vclk s5e3830_clkout_vclks[] = {
 
 static struct of_device_id ext_clk_match[] = {
 	{.compatible = "samsung,s5e3830-oscclk", .data = (void *)0},
+	{.compatible = "samsung,exynos3830-oscclk", .data = (void *)0},
 	{},
 };
 
