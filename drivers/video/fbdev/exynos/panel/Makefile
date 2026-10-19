@@ -23,7 +23,6 @@ mcd-panel-$(CONFIG_SUPPORT_I2C) += panel_i2c.o
 mcd-panel-$(CONFIG_DYNAMIC_FREQ) += df/dynamic_freq.o
 
 mcd-panel-$(CONFIG_EXYNOS_DECON_LCD_DUMMY_LCD_V320) += dummy_lcd/dummy_lcd.o
-mcd-panel-$(CONFIG_EXYNOS_DECON_LCD_NT36525_XCOVER5) += nt36525/nt36525.o
 mcd-panel-$(CONFIG_EXYNOS_DECON_LCD_NT36525B_CTC_A12S) += nt36525b_ctc/nt36525b_ctc.o
 mcd-panel-$(CONFIG_EXYNOS_DECON_LCD_ILI9882Q_BOE_A12S) += ili9882q_boe/ili9882q_boe.o
 mcd-panel-$(CONFIG_EXYNOS_DECON_LCD_NT36525B_SHARP_A12S) += nt36525b_sharp/nt36525b_sharp.o

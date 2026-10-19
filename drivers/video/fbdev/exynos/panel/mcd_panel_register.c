@@ -21,15 +21,8 @@
  * If you want to add model panel driver, please add here.
  */
 
-#if IS_ENABLED(CONFIG_EXYNOS_DECON_LCD_NT36525_XCOVER5)
-extern int __init nt36525_xcover5_panel_init(void);
-#endif
-
 static void __init register_model_panels(void)
 {
-#if IS_ENABLED(CONFIG_EXYNOS_DECON_LCD_NT36525_XCOVER5)
-	nt36525_xcover5_panel_init();
-#endif
 }
 
 /*
