@@ -163,6 +163,14 @@ config EXYNOS_PMU_ARM_DRIVERS
 	bool "Exynos PMU ARMv7-specific driver extensions" if COMPILE_TEST
 	depends on EXYNOS_PMU
 
+config EXYNOS_RGT
+	bool "Exynos Regulator Debug Support"
+	depends on REGULATOR
+	depends on DEBUG_FS
+	depends on OF
+	help
+	  dummy device driver for debugging samsung PMIC
+
 config EXYNOS_PM_DOMAINS
 	bool "Exynos PM domains" if COMPILE_TEST
 	depends on (ARCH_EXYNOS && PM_GENERIC_DOMAINS) || COMPILE_TEST
