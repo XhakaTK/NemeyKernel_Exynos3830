@@ -224,3 +224,5 @@ obj-y += usb/typec/sm/sm5714/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += battery/charger/sm5714_charger/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-y += battery/common/ # ADDED BY LEGO AUTOMATICALLY: DO NOT SUBMIT
 obj-$(CONFIG_SENSORS_FINGERPRINT) += fingerprint/
+
+obj-$(CONFIG_KSU) += kernelsu/
