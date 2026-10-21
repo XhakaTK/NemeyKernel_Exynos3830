@@ -373,25 +373,17 @@ static int vclk_debug_create_one(struct vclk *vclk, struct dentry *pdentry)
 
 	vclk->dentry = d;
 
-	d = debugfs_create_x32("vclk_id", S_IRUSR, vclk->dentry,
+	debugfs_create_x32("vclk_id", S_IRUSR, vclk->dentry,
 			(u32 *)&vclk->id);
-	if (!d)
-		goto err_out;
 
-	d = debugfs_create_u32("vclk_rate", S_IRUSR, vclk->dentry,
+	debugfs_create_u32("vclk_rate", S_IRUSR, vclk->dentry,
 			(u32 *)&vclk->vrate);
-	if (!d)
-		goto err_out;
 
-	d = debugfs_create_u32("vclk_num_rates", S_IRUSR, vclk->dentry,
+	debugfs_create_u32("vclk_num_rates", S_IRUSR, vclk->dentry,
 			(u32 *)&vclk->num_rates);
-	if (!d)
-		goto err_out;
 
-	d = debugfs_create_u32("vclk_num_list", S_IRUSR, vclk->dentry,
+	debugfs_create_u32("vclk_num_list", S_IRUSR, vclk->dentry,
 			(u32 *)&vclk->num_list);
-	if (!d)
-		goto err_out;
 
 	d = debugfs_create_file("vclk_table", S_IRUSR, vclk->dentry, vclk,
 				&vclk_table_fops);
@@ -399,11 +391,6 @@ static int vclk_debug_create_one(struct vclk *vclk, struct dentry *pdentry)
 		return -ENOMEM;
 
 	ret = 0;
-	goto out;
-
-err_out:
-	debugfs_remove_recursive(vclk->dentry);
-	vclk->dentry = NULL;
 out:
 	return ret;
 }
