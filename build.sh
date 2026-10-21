@@ -24,6 +24,8 @@ CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1"
 
 DEFCONFIG=${1:-exynos850-a12s_defconfig}
 
+DEFCONFIG=${1:-exynos850-m12_defconfig}
+
 make $MAKE_ARGS $DEFCONFIG
 
 make -j4
