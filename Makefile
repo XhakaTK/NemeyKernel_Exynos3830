@@ -1469,6 +1469,11 @@ dtbs_check: dtbs
 dtbs_install:
 	$(Q)$(MAKE) $(dtbinst)=$(dtstree) dst=$(INSTALL_DTBS_PATH)
 
+# Packed device tree images, see arch/$(SRCARCH)/boot/Makefile
+PHONY += dtb.img dtbo.img
+dtb.img dtbo.img: dtbs
+	$(Q)$(MAKE) $(build)=$(dtstree)/.. $(dtstree)/../$@
+
 ifdef CONFIG_OF_EARLY_FLATTREE
 all: dtbs
 endif
