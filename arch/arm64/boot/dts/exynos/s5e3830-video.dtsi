@@ -1,0 +1,255 @@
+/* Samsung Exynos 850 (S5E3830) - SMFC, scaler and MFC video codecs */
+
+	smfc@12C90000 {
+		compatible = "samsung,exynos8890-jpeg";
+		reg = <0x00 0x12c90000 0x1000>;
+		interrupts = <0x00 0xa9 0x04>;
+		iommus = <0x8a>;
+		samsung,iommu-group = <0x8b>;
+		smfc,int_qos_minlock = <0x825f0>;
+		phandle = <0x145>;
+	};
+
+	scaler@12CB0000 {
+		compatible = "samsung,exynos5-scaler";
+		reg = <0x00 0x12cb0000 0x3000>;
+		interrupts = <0x00 0xaa 0x04>;
+		clocks = <0x03 0x1f5>;
+		clock-names = "gate";
+		iommus = <0x8a>;
+		samsung,iommu-group = <0x8b>;
+		samsung,tzmp;
+		mscl_qos_table = <0x00 0x825f0 0xa2d78 0x00 0x518b0 0x61a80 0x00 0x30d40 0x518b0 0x00 0x186a0 0x186a0>;
+		mscl_ppc_table = <0x0c 0x4f 0x4f 0x10 0x42 0x42 0x20 0x52 0x4f>;
+		mscl_mif_ref = <0xce4c8>;
+		mscl_bw_ref = <0x1ee628>;
+		phandle = <0x146>;
+	};
+
+	mfc {
+		compatible = "samsung,exynos-mfc";
+		iommus = <0x8a>;
+		samsung,iommu-group = <0x8b>;
+		samsung,iommu-reserved-map = <0x00 0x00 0x10000000 0x00 0x10000000 0x100000>;
+		samsung,tzmp;
+		memory-region = <0x8c>;
+		ip_ver = <0x1021>;
+		debug_mode = <0x01>;
+		nal_q_entry_size = <0x300>;
+		nal_q_dump_size = <0x178>;
+		nal_q = <0x00 0x00>;
+		skype = <0x01 0x00>;
+		black_bar = <0x01 0x200218>;
+		color_aspect_dec = <0x01 0x00>;
+		static_info_dec = <0x01 0x00>;
+		color_aspect_enc = <0x01 0x00>;
+		static_info_enc = <0x01 0x180314>;
+		hdr10_plus = <0x00 0x00>;
+		vp9_stride_align = <0x00 0x00>;
+		sbwc_uncomp = <0x00 0x00>;
+		mem_clear = <0x01 0x00>;
+		wait_fw_status = <0x00 0x00>;
+		wait_nalq_status = <0x00 0x00>;
+		drm_switch_predict = <0x01 0x00>;
+		sbwc_enc_src_ctrl = <0x00 0x200110>;
+		metadata_interface = <0x00 0x200910>;
+		hdr10_plus_full = <0x00 0x200910>;
+		average_qp = <0x01 0x201030>;
+		mv_search_mode = <0x00 0x201118>;
+		enc_idr_flag = <0x01 0x210614>;
+		min_quality_mode = <0x00 0x210705>;
+		enc_ts_delta = <0x00 0x211027>;
+		wfd_rc_mode = <0x00 0x00>;
+		support_av1_dec = <0x00>;
+		av1_film_grain = <0x00 0x200717>;
+		P010_decoding = <0x01>;
+		dithering_enable = <0x00>;
+		stride_align = <0x10>;
+		stride_type = <0x00>;
+		support_10bit = <0x00>;
+		support_422 = <0x00>;
+		support_rgb = <0x00>;
+		support_sbwc = <0x00>;
+		support_sbwcl = <0x00>;
+		support_sbwcl40 = <0x00>;
+		sbwc_dec_max_width = <0x00>;
+		sbwc_dec_max_height = <0x00>;
+		sbwc_dec_max_inst_num = <0x00>;
+		sbwc_dec_max_framerate = <0x00>;
+		sbwc_dec_hdr10_off = <0x00>;
+		max_hdr_win = <0x01>;
+		display_err_type = <0x02>;
+		security_ctrl = <0x00>;
+		display_framerate = <0x00>;
+		enc_param_num = <0x15>;
+		enc_param_addr = <0xf7b4 0xf7b8 0xf7b0 0xf798 0xfa2c 0xf790 0xfa34 0xfa38 0xfa3c 0xfdd4 0xfddc 0xfb54 0xfb58 0xfba8 0xfd90 0xfd94 0xfd40 0xfd48 0xfd4c 0xfd50 0xfd80>;
+		enc_param_val = <0x80 0x80 0x00 0x4000 0x3fd00 0x00 0x00 0x2710 0x3e8 0x8050f215 0x00 0x3011 0x00 0x00 0x2d 0xa00 0x1d 0xf4240 0x33003300 0x02 0x01>;
+		bw_enc_h264 = <0x11d9a 0xbcc0 0x5cec>;
+		bw_enc_hevc = <0xf000 0x98e5 0x52db>;
+		bw_enc_hevc_10bit = <0x00 0x00 0x00>;
+		bw_enc_vp8 = <0x12000 0xbce9 0x5f60>;
+		bw_enc_vp9 = <0x00 0x00 0x00>;
+		bw_enc_vp9_10bit = <0x00 0x00 0x00>;
+		bw_enc_mpeg4 = <0xf000 0xaa90 0x419a>;
+		bw_dec_h264 = <0x11334 0x9548 0x5c52>;
+		bw_dec_hevc = <0xf667 0x7cc6 0x5004>;
+		bw_dec_hevc_10bit = <0x00 0x00 0x00>;
+		bw_dec_vp8 = <0xc39a 0x6960 0x5734>;
+		bw_dec_vp9 = <0x00 0x00 0x00>;
+		bw_dec_vp9_10bit = <0x00 0x00 0x00>;
+		bw_dec_av1 = <0x00 0x00 0x00>;
+		bw_dec_av1_10bit = <0x00 0x00 0x00>;
+		bw_dec_mpeg4 = <0xc334 0x6318 0x3d9a>;
+		sbwc_bw_enc_h264 = <0x00 0x00 0x00>;
+		sbwc_bw_enc_hevc = <0x00 0x00 0x00>;
+		sbwc_bw_enc_hevc_10bit = <0x00 0x00 0x00>;
+		sbwc_bw_enc_vp8 = <0x00 0x00 0x00>;
+		sbwc_bw_enc_vp9 = <0x00 0x00 0x00>;
+		sbwc_bw_enc_vp9_10bit = <0x00 0x00 0x00>;
+		sbwc_bw_enc_mpeg4 = <0x00 0x00 0x00>;
+		sbwc_bw_dec_h264 = <0x00 0x00 0x00>;
+		sbwc_bw_dec_hevc = <0x00 0x00 0x00>;
+		sbwc_bw_dec_hevc_10bit = <0x00 0x00 0x00>;
+		sbwc_bw_dec_vp8 = <0x00 0x00 0x00>;
+		sbwc_bw_dec_vp9 = <0x00 0x00 0x00>;
+		sbwc_bw_dec_vp9_10bit = <0x00 0x00 0x00>;
+		sbwc_bw_dec_mpeg4 = <0x00 0x00 0x00>;
+		num_mfc_freq = <0x03>;
+		mfc_freqs = <0x412f8 0x61a80 0xa2d78>;
+		max_Kbps = <0x5000 0x5000>;
+		dynamic_weight = <0x00>;
+		qos_weight_h264_hevc = <0x64>;
+		qos_weight_vp8_vp9 = <0x64>;
+		qos_weight_av1 = <0x00>;
+		qos_weight_other_codec = <0x19>;
+		qos_weight_3plane = <0x50>;
+		qos_weight_10bit = <0x4b>;
+		qos_weight_422 = <0x46>;
+		qos_weight_bframe = <0x32>;
+		qos_weight_num_of_ref = <0x3c>;
+		qos_weight_gpb = <0x32>;
+		qos_weight_num_of_tile = <0x4b>;
+		qos_weight_super64_bframe = <0x3c>;
+		qos_weight_mbaff = <0x3c>;
+		core_balance = <0x64>;
+		iova_threshold = <0x6a4>;
+		idle_clk_ctrl = <0x01>;
+		qos_ctrl_level = <0x01>;
+		int_freq_fw_verify = <0x40f10>;
+		memlog_size = <0x80000>;
+		memlog_sfr_size = <0x1000>;
+		enc_timing_dis = <0x01>;
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		ranges;
+		phandle = <0x147>;
+
+		MFC-0 {
+			compatible = "samsung,exynos-mfc-core";
+			id = <0x00>;
+			reg = <0x00 0x12c80000 0x10000>;
+			interrupts = <0x00 0xac 0x04>;
+			clock-names = "aclk_mfc";
+			clocks = <0x03 0x1f7>;
+			iommus = <0x8a>;
+			samsung,iommu-group = <0x8b>;
+			samsung,iommu-reserved-map = <0x00 0x10000000 0x100000>;
+			samsung,tzmp;
+			samsung,imgloader-s2mpu-support;
+			ip_ver = <0x1021>;
+			share_sysmmu = <0x01>;
+			axid_mask = <0x07>;
+			mfc_fault_num = <0x00>;
+			trans_info_offset = <0x1004>;
+			tsmux_axid = <0x01>;
+			llc = <0x00>;
+			need_llc_flush = <0x00>;
+			num_default_qos_steps = <0x03>;
+			num_encoder_qos_steps = <0x03>;
+			max_mb = <0xe9b93>;
+			max_hw_mb = <0x77880>;
+			mfc_freq_control = <0x01>;
+			mo_control = <0x00>;
+			bw_control = <0x01>;
+			#address-cells = <0x02>;
+			#size-cells = <0x01>;
+			ranges;
+			#dma-address-cells = <0x01>;
+			#dma-size-cells = <0x01>;
+			dma-window = <0x00 0xc0000000>;
+			phandle = <0x148>;
+
+			iommu {
+				reg = <0x00 0x12c50000 0x9000>;
+			};
+
+			mfc_default_qos_table {
+
+				mfc_d_qos_variant_0 {
+					thrd_mb = <0x00>;
+					freq_mfc = <0x412f8>;
+					freq_int = <0x30d40>;
+					freq_mif = <0x854d0>;
+					time_fw = <0x17f>;
+					bts_scen = "default";
+				};
+
+				mfc_d_qos_variant_1 {
+					thrd_mb = <0x3d645>;
+					freq_mfc = <0xa2d78>;
+					freq_int = <0x825f0>;
+					freq_mif = <0xf78f0>;
+					time_fw = <0xab>;
+					bts_scen = "default";
+				};
+
+				mfc_d_qos_variant_2 {
+					thrd_mb = <0x7c8ba>;
+					freq_mfc = <0xa2d78>;
+					freq_int = <0xa2d78>;
+					freq_mif = <0xf78f0>;
+					time_fw = <0x88>;
+					bts_scen = "default";
+				};
+			};
+
+			mfc_encoder_qos_table {
+
+				mfc_e_qos_variant_0 {
+					thrd_mb = <0x00>;
+					freq_mfc = <0x61a80>;
+					freq_int = <0x518b0>;
+					freq_mif = <0x854d0>;
+					time_fw = <0x130>;
+					bts_scen = "default";
+				};
+
+				mfc_e_qos_variant_1 {
+					thrd_mb = <0x3d3e2>;
+					freq_mfc = <0xa2d78>;
+					freq_int = <0x825f0>;
+					freq_mif = <0xf78f0>;
+					time_fw = <0xab>;
+					bts_scen = "default";
+				};
+
+				mfc_e_qos_variant_2 {
+					thrd_mb = <0x7c8ba>;
+					freq_mfc = <0xa2d78>;
+					freq_int = <0xa2d78>;
+					freq_mif = <0xf78f0>;
+					time_fw = <0x88>;
+					bts_scen = "default";
+				};
+			};
+
+			mfc_perf_boost_table {
+				num_cluster = <0x02>;
+				freq_cluster = <0x1a94b0 0x1cf610>;
+				freq_mfc = <0xa2d78>;
+				freq_int = <0xa2d78>;
+				freq_mif = <0x177bb8>;
+				bts_scen = "default";
+			};
+		};
+	};

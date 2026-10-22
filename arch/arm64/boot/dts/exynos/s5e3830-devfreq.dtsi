@@ -1,0 +1,301 @@
+/* Samsung Exynos 850 (S5E3830) - ACPM, watchdogs, devfreq and PM */
+
+	acpm {
+		compatible = "samsung,exynos-acpm";
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		acpm-ipc-channel = <0x04>;
+		fvmap_offset = <0xa000>;
+		reg = <0x00 0x11830000 0x1000>;
+		reg-names = "timer_apm";
+		peritimer-cnt = <0xffff>;
+	};
+
+	acpm_ipc {
+		compatible = "samsung,exynos-acpm-ipc";
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		interrupts = <0x00 0x31 0x04>;
+		reg = <0x00 0x11900000 0x1000 0x00 0x2039000 0x30000>;
+		initdata-base = <0x7000>;
+		num-timestamps = <0x20>;
+		debug-log-level = <0x00>;
+		logging-period = <0x1f4>;
+		dump-base = <0x203c000>;
+		dump-size = <0x2d000>;
+		dram-dump-base = <0x9000c800>;
+	};
+
+	acpm_dvfs {
+		compatible = "samsung,exynos-acpm-dvfs";
+		acpm-ipc-channel = <0x05>;
+	};
+
+	acpm_mfd_bus@11A50000 {
+		compatible = "samsung,exynos-acpm-mfd-bus";
+		status = "disabled";
+		phandle = <0x153>;
+	};
+
+	watchdog_cl0@10050000 {
+		compatible = "samsung,exynos3-v1-wdt";
+		reg = <0x00 0x10050000 0x100>;
+		interrupts = <0x00 0xe4 0x04>;
+		clocks = <0x03 0x01 0x03 0x23b>;
+		clock-names = "rate_watchdog\0gate_watchdog";
+		timeout-sec = <0x50>;
+		shutdown_wdt_timeout = <0x1e>;
+		samsung,syscon-phandle = <0x6e>;
+		index = <0x00>;
+	};
+
+	watchdog_cl1@10060000 {
+		compatible = "samsung,exynos3-v2-wdt";
+		reg = <0x00 0x10060000 0x100>;
+		interrupts = <0x00 0xe5 0x04>;
+		clocks = <0x03 0x01 0x03 0x23c>;
+		clock-names = "rate_watchdog\0gate_watchdog";
+		timeout-sec = <0x50>;
+		shutdown_wdt_timeout = <0x1e>;
+		samsung,syscon-phandle = <0x6e>;
+		index = <0x01>;
+		use_multistage_wdt;
+	};
+
+	watchdog_builtin_wdt {
+		compatible = "samsung,s3c2410-builtin-wdt";
+		reg = <0x00 0x10050000 0x20>;
+		status = "okay";
+	};
+
+	exynos-ect {
+		compatible = "samsung,exynos-ect";
+		memory-region = <0x95>;
+	};
+
+	exynos-dm@17000000 {
+		compatible = "samsung,exynos-dvfs-manager";
+		reg = <0x00 0x17000000 0x00>;
+		acpm-ipc-channel = <0x01>;
+		phandle = <0x154>;
+
+		dm_domains {
+
+			cpufreq_cl0 {
+				dm-index = <0x00>;
+				available = "true";
+				cal_id = <0xb040002>;
+				dm_type_name = "dm_cpu_cl0";
+			};
+
+			cpufreq_cl1 {
+				dm-index = <0x01>;
+				available = "true";
+				cal_id = <0xb040003>;
+				dm_type_name = "dm_cpu_cl1";
+			};
+
+			devfreq_mif {
+				dm-index = <0x02>;
+				available = "true";
+				policy_use = "true";
+				cal_id = <0xb040000>;
+				dm_type_name = "dm_mif";
+			};
+
+			devfreq_int {
+				dm-index = <0x03>;
+				available = "true";
+				policy_use = "true";
+				cal_id = <0xb040001>;
+				dm_type_name = "dm_int";
+			};
+
+			devfreq_cam {
+				dm-index = <0x04>;
+				available = "true";
+				cal_id = <0xb040006>;
+				dm_type_name = "dm_cam";
+			};
+
+			devfreq_disp {
+				dm-index = <0x05>;
+				available = "true";
+				cal_id = <0xb040007>;
+				dm_type_name = "dm_disp";
+			};
+
+			devfreq_aud {
+				dm-index = <0x06>;
+				available = "true";
+				cal_id = <0xb040005>;
+				dm_type_name = "dm_aud";
+			};
+
+			dvfs_gpu {
+				dm-index = <0x07>;
+				available = "false";
+				cal_id = <0xb040004>;
+				dm_type_name = "dm_gpu";
+			};
+		};
+	};
+
+	exynos_devfreq {
+		compatible = "samsung,exynos-devfreq-root";
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		ranges;
+
+		devfreq_mif@17000010 {
+			compatible = "samsung,exynos-devfreq";
+			reg = <0x00 0x17000010 0x00>;
+			devfreq_type = <0x00>;
+			devfreq_domain_name = "MIF";
+			pm_qos_class = <0x0c>;
+			pm_qos_class_max = <0x0d>;
+			ess_flag = <0x03>;
+			dm-index = <0x02>;
+			use_delay_time = "false";
+			freq_info = <0x177bb8 0x66c88 0x66c88 0x66c88 0x177bb8 0x66c88>;
+			boot_info = <0x28 0x177bb8>;
+			governor = <0x00>;
+			bts_update = "false";
+			dfs_id = <0xb040000>;
+			acpm-ipc-channel = <0x01>;
+			use_acpm = "true";
+			update_fvp = "true";
+			phandle = <0x155>;
+		};
+
+		devfreq_int@17000020 {
+			compatible = "samsung,exynos-devfreq";
+			reg = <0x00 0x17000020 0x00>;
+			devfreq_type = <0x01>;
+			devfreq_domain_name = "INT";
+			pm_qos_class = <0x08>;
+			pm_qos_class_max = <0x0a>;
+			ess_flag = <0x02>;
+			dm-index = <0x03>;
+			use_delay_time = "false";
+			freq_info = <0xa2d78 0xc350 0xc350 0xc350 0xa2d78 0xa2d78>;
+			boot_info = <0x28 0xa2d78>;
+			governor = <0x00>;
+			bts_update = "false";
+			dfs_id = <0xb040001>;
+			acpm-ipc-channel = <0x01>;
+			use_acpm = "true";
+			phandle = <0x156>;
+		};
+
+		devfreq_disp@17000030 {
+			compatible = "samsung,exynos-devfreq";
+			reg = <0x00 0x17000030 0x00>;
+			devfreq_type = <0x02>;
+			devfreq_domain_name = "DISP";
+			pm_qos_class = <0x0e>;
+			pm_qos_class_max = <0x0f>;
+			ess_flag = <0x05>;
+			dm-index = <0x05>;
+			use_delay_time = "false";
+			freq_info = <0x61a80 0xc350 0xc350 0xc350 0x61a80 0x61a80>;
+			boot_info = <0x28 0x61a80>;
+			governor = <0x00>;
+			bts_update = "false";
+			dfs_id = <0xb040007>;
+			phandle = <0x157>;
+		};
+
+		devfreq_cam@17000040 {
+			compatible = "samsung,exynos-devfreq";
+			reg = <0x00 0x17000040 0x00>;
+			devfreq_type = <0x03>;
+			devfreq_domain_name = "CAM";
+			pm_qos_class = <0x10>;
+			pm_qos_class_max = <0x12>;
+			ess_flag = <0x04>;
+			dm-index = <0x04>;
+			use_delay_time = "false";
+			freq_info = <0xa8750 0x9eb10 0xfde8 0x9eb10 0xa8750 0x9eb10>;
+			boot_info = <0x28 0x9eb10>;
+			governor = <0x00>;
+			bts_update = "false";
+			dfs_id = <0xb040006>;
+			phandle = <0x158>;
+		};
+
+		devfreq_aud@17000050 {
+			compatible = "samsung,exynos-devfreq";
+			reg = <0x00 0x17000050 0x00>;
+			devfreq_type = <0x04>;
+			devfreq_domain_name = "AUD";
+			pm_qos_class = <0x11>;
+			pm_qos_class_max = <0x13>;
+			ess_flag = <0x07>;
+			dm-index = <0x06>;
+			use_delay_time = "false";
+			freq_info = <0xfc328 0x3f3b8 0x3f3b8 0x3f3b8 0xfc328 0x3f3b8>;
+			boot_info = <0x28 0x3f3b8>;
+			governor = <0x00>;
+			bts_update = "false";
+			dfs_id = <0xb040005>;
+			power-domains = <0x33>;
+			pd_name = "pd-aud";
+			phandle = <0x159>;
+		};
+	};
+
+	exynos_flexpmu_dbg {
+		compatible = "samsung,exynos-flexpmu-dbg";
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		data-base = <0x204d400>;
+		data-size = <0x400>;
+		reg = <0x00 0x11a30000 0x1000>;
+	};
+
+	exynos-pm {
+		compatible = "samsung,exynos-pm";
+		reg = <0x00 0x11850000 0x1000 0x00 0x12a01200 0x100 0x00 0x11a50000 0x2000>;
+		reg-names = "gpio_alive_base\0gicd_ispendrn_base\0i3c_base";
+		num-eint = <0x10>;
+		num-gic = <0x10>;
+		suspend_mode_idx = <0x08>;
+		suspend_psci_idx = <0x400>;
+		usbl2_suspend_available = <0x00>;
+		usbl2_suspend_mode_idx = <0x0c>;
+		wakeup_stat = <0x3950 0x3954>;
+		wake_lock = <0x00>;
+		vgpio_tx_monitor = <0x1700>;
+
+		wakeup_stats {
+
+			wakeup_stat {
+				ws-name = "RTC_ALARM\0RTC_TICK\0TRTC_ALARM\0TRTC_TICK\0RESERVED\0CMGP2PMU_AP_EINT0\0CMGP2PMU_AP_EINT1\0AUD_ABOX_GIC400\0MAILBOX_CHUB2AP\0MAILBOX_GNSS2AP\0MAILBOX_WLBT2AP\0MAILBOX_APM2AP\0MAILBOX_CP2AP\0S_MAILBOX_CP2AP\0CHUB_WDT\0EINT\0USB_REWA\0USB20\0MMC_EMBD\0MMC_CARD\0TIMER\0CP_RESET_REQ\0GNSS_RESET_REQ\0GNSS_ACTIVE\0GNSS_WAKEUP_REQ\0WLBT_RESET_REQ\0WLBT_ACTIVE\0CLUSTER0_CPU0_nIRQ\0CLUSTER0_CPU1_nIRQ\0CLUSTER0_CPU2_nIRQ\0CLUSTER0_CPU3_nIRQ\0RESERVED";
+			};
+
+			wakeup_stat2 {
+				ws-name = "PMIC_CODEC_IRQ\0PMIC_IRQ\0CLUSTER1_CPU0_nIRQ\0CLUSTER1_CPU1_nIRQ\0CLUSTER1_CPU2_nIRQ\0CLUSTER1_CPU3_nIRQ";
+			};
+		};
+
+		debug_subsystem {
+			sfr-name = "CP_OUT\0GNSS_OUT\0WLBT_OUT\0MIF_OUT\0CHUB_STATES";
+			sfr-offset = <0x3020 0x30a0 0x3120 0x3820 0x1f88>;
+		};
+
+		wakeup-masks {
+
+			wakeup-mask {
+				mask = <0xffffffff 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x360ffef 0x8007ff6f 0x8007ff6f 0x00 0x8007ff6f 0x8007ff6f>;
+				mask-offset = <0x3944>;
+				stat-offset = <0x3950>;
+			};
+
+			wakeup-mask2 {
+				mask = <0x3e1e 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x3e1e 0x3e1e 0x00 0x3e1e 0x3e1e>;
+				mask-offset = <0x3964>;
+				stat-offset = <0x3954>;
+			};
+		};
+	};

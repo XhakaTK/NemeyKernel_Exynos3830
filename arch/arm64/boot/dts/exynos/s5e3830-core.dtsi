@@ -1,0 +1,126 @@
+/* Samsung Exynos 850 (S5E3830) - memory, chosen, clocks, GIC, timer and PMU */
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x00 0x80000000 0x80000000>;
+	};
+
+	memory@880000000 {
+		device_type = "memory";
+		reg = <0x08 0x80000000 0x80000000>;
+	};
+
+	chosen {
+		bootargs = "console=ram s3c2410_wdt.tmr_atboot=1 clocksource=arch_sys_counter clk_ignore_unused printk.devkmsg=on firmware_class.path=/vendor/firmware transparent_hugepage=never loop.max_part=7 cgroup.memory=nokmem swiotlb=noforce disable_dma32=on allow_file_spec_access";
+		linux,initrd-start = <0x84000000>;
+		linux,initrd-end = <0x847fffff>;
+	};
+
+	fixed-rate-clocks {
+
+		oscclk {
+			compatible = "samsung,s5e3830-oscclk";
+			clock-frequency = <0x18cba80>;
+		};
+	};
+
+	chipid@10000000 {
+		compatible = "samsung,s5e3830-chipid";
+		reg = <0x00 0x10000000 0x100>;
+	};
+
+	reboot {
+		compatible = "exynos,reboot-v1";
+		reg = <0x00 0x11860000 0x4000>;
+		samsung,syscon-phandle = <0x6e>;
+	};
+
+	interrupt-controller@12a00000 {
+		compatible = "arm,cortex-a15-gic\0arm,cortex-a9-gic";
+		#interrupt-cells = <0x03>;
+		#address-cells = <0x00>;
+		interrupt-controller;
+		reg = <0x00 0x12a01000 0x1000 0x00 0x12a02000 0x1000 0x00 0x12a04000 0x2000 0x00 0x12a06000 0x2000>;
+		interrupts = <0x01 0x09 0xf04>;
+		phandle = <0x01>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <0x01 0x0d 0xff08 0x01 0x0e 0xff08 0x01 0x0b 0xff08 0x01 0x0a 0xff08>;
+		clock-frequency = <0x18cba80>;
+		use-clocksource-only;
+		use-physical-timer;
+	};
+
+	clock-controller@0x120e0000 {
+		compatible = "samsung,s5e3830-clock";
+		reg = <0x00 0x120e0000 0x8000>;
+		#clock-cells = <0x01>;
+		phandle = <0x03>;
+	};
+
+	cal_if {
+		compatible = "samsung,exynos_cal_if";
+		reg = <0x00 0x120e0000 0x8000>;
+		acpm-ipc-channel = <0x00>;
+	};
+
+	mct@10040000 {
+		compatible = "samsung,exynos4210-mct";
+		reg = <0x00 0x10040000 0x800>;
+		interrupt-controller;
+		#interrupt-cells = <0x01>;
+		interrupt-parent = <0x94>;
+		interrupts = <0x00 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0a 0x0b>;
+		clocks = <0x03 0x01 0x03 0x15>;
+		clock-names = "fin_pll\0mct";
+		use-clockevent-only;
+
+		mct-map {
+			#interrupt-cells = <0x01>;
+			#address-cells = <0x00>;
+			#size-cells = <0x00>;
+			interrupt-map = <0x00 0x01 0x00 0xcb 0x04 0x01 0x01 0x00 0xcc 0x04 0x02 0x01 0x00 0xcd 0x04 0x03 0x01 0x00 0xce 0x04 0x04 0x01 0x00 0xcf 0x04 0x05 0x01 0x00 0xd0 0x04 0x06 0x01 0x00 0xd1 0x04 0x07 0x01 0x00 0xd2 0x04 0x08 0x01 0x00 0xd3 0x04 0x09 0x01 0x00 0xd4 0x04 0x0a 0x01 0x00 0xd5 0x04 0x0b 0x01 0x00 0xd6 0x04>;
+			phandle = <0x94>;
+		};
+	};
+
+	amba {
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		compatible = "arm,amba-bus";
+		interrupt-parent = <0x01>;
+		ranges;
+
+		pdma0@120C0000 {
+			compatible = "arm,pl330\0arm,primecell";
+			reg = <0x00 0x120c0000 0x1000>;
+			interrupts = <0x00 0x1df 0x04>;
+			clocks = <0x03 0xff>;
+			clock-names = "apb_pclk";
+			#dma-cells = <0x01>;
+			#dma-channels = <0x08>;
+			#dma-requests = <0x20>;
+			#dma-multi-irq = <0x01>;
+			dma-arwrapper = <0x120c4400 0x120c4420 0x120c4440 0x120c4460 0x120c4480 0x120c44a0 0x120c44c0 0x120c44e0>;
+			dma-awwrapper = <0x120c4404 0x120c4424 0x120c4444 0x120c4464 0x120c4484 0x120c44a4 0x120c44c4 0x120c44e4>;
+			dma-instwrapper = <0x120c4500>;
+			dma-mask-bit = <0x24>;
+			coherent-mask-bit = <0x24>;
+			phandle = <0x0d>;
+		};
+	};
+
+	exynos-pmu {
+		compatible = "samsung,exynos-pmu";
+		samsung,syscon-phandle = <0x6e>;
+		reg = <0x00 0x11860000 0x10000>;
+		reg-names = "pmu_alive";
+	};
+
+	system-controller@11860000 {
+		compatible = "samsung,exynos3830-pmu\0syscon";
+		reg = <0x00 0x11860000 0x10000>;
+		phandle = <0x6e>;
+	};

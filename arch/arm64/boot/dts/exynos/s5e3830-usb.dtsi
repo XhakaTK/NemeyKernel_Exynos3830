@@ -1,0 +1,90 @@
+/* Samsung Exynos 850 (S5E3830) - USB controller, PHY and connection notify */
+
+	usb@13600000 {
+		compatible = "samsung,exynos-dwusb";
+		clocks = <0x03 0x193 0x03 0x19a>;
+		clock-names = "aclk\0sclk";
+		reg = <0x00 0x13600000 0x10000>;
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		ranges;
+		power-domains = <0x42>;
+		status = "okay";
+		phys = <0x75 0x00>;
+		phy-names = "usb2-phy";
+		interrupts = <0x00 0x89 0x04>;
+		exynos,adj-sof-accuracy = <0x01>;
+		exynos,usb_host_device_timeout = <0xc8>;
+		exynos,enable_sprs_transfer = <0x00>;
+		usb3-lpm-capable;
+		samsung,no-extra-delay;
+		usb_host_device_timeout = <0x7ff>;
+		exynos,xhci_l2_support = <0x00>;
+		phandle = <0x76>;
+
+		dwc3 {
+			compatible = "synopsys,dwc3";
+			reg = <0x00 0x13600000 0x10000>;
+			interrupts = <0x00 0x89 0x04>;
+			is_not_vbus_pad = <0x01>;
+			enable_sprs_transfer = <0x01>;
+			dr_mode = "peripheral";
+			phys = <0x75 0x00>;
+			phy-names = "usb2-phy";
+			xhci_l2_support = <0x00>;
+			usb_audio_offloading = <0x00>;
+			ldos = <0x03>;
+			ldo_number = <0x01 0x02 0x0b>;
+			usb-pm-qos-int = <0x61a80>;
+			status = "okay";
+			snps,quirk-frame-length-adjustment = <0x20>;
+			snps,dis-u2-freeclk-exists-quirk;
+			phandle = <0x119>;
+		};
+	};
+
+	phy@135d0000 {
+		compatible = "samsung,exynos-usbdrd-phy";
+		reg = <0x00 0x135d0000 0x200>;
+		interrupts = <0x00 0x88 0x04 0x00 0x86 0x04>;
+		clocks = <0x03 0x01 0x03 0x193>;
+		clock-names = "ext_xtal\0aclk";
+		samsung,pmu-syscon = <0x6e>;
+		pmu_mask = <0x00>;
+		pmu_offset = <0x704>;
+		pmu_offset_dp = <0x704>;
+		phy_version = <0x301>;
+		phyclk_mux = "none";
+		phy_refclk = "ext_xtal";
+		has_other_phy = <0x00>;
+		has_combo_phy = <0x00>;
+		sub_phy_version = <0x400>;
+		ip_type = <0x00>;
+		phy_refsel_clockcore = <0x01>;
+		phy_refsel_ext_osc = <0x00>;
+		phy_refsel_xtal = <0x00>;
+		phy_refsel_diff_pad = <0x00>;
+		phy_refsel_diff_internal = <0x00>;
+		phy_refsel_diff_single = <0x00>;
+		use_io_for_ovc = <0x00>;
+		common_block_disable = <0x01>;
+		is_not_vbus_pad = <0x01>;
+		used_phy_port = <0x00>;
+		status = "okay";
+		#phy-cells = <0x01>;
+		ranges;
+		phandle = <0x75>;
+	};
+
+	usb_notifier {
+		compatible = "samsung,usb-notifier";
+		udc = <0x76>;
+		status = "okay";
+	};
+
+	ifconn {
+		status = "okay";
+		compatible = "samsung,ifconn";
+		ifconn,usbpd = "s2mu106";
+		ifconn,muic = "s2mu106-muic";
+	};

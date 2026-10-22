@@ -1,0 +1,194 @@
+/* Samsung Exynos 850 (S5E3830) - dump, coresight and lockup debug */
+
+	dpm {
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		version = <0x64>;
+		phandle = <0x102>;
+
+		security {
+			cp_mem_not_clear = <0x00>;
+			dbg_mem_enable = <0x00>;
+			seh_enable = <0x00>;
+			pm_test_enable = <0x00>;
+			seclog_enable = <0x00>;
+			sdm_enable = <0x00>;
+		};
+
+		feature {
+
+			dump-mode {
+				enabled = <0x01>;
+				file-support = <0x00>;
+				fastboot-support = <0x01>;
+			};
+
+			event {
+				method = "task_log\0work_log\0cpuidle_log\0suspend_log\0irq_log\0hrtimer_log\0reg_log\0clk_log\0pmu_log\0freq_log\0dm_log\0regulator_log\0thermal_log\0acpm_log\0printk_log";
+			};
+		};
+
+		policy {
+
+			exception {
+				pre_log = <0x01>;
+				el1_da = <0x00>;
+				el1_ia = <0x00>;
+				el1_undef = <0x00>;
+				el1_sp_pc = <0x00>;
+				el1_inv = <0x00>;
+				el1_serror = <0x00>;
+			};
+		};
+	};
+
+	dss {
+		compatible = "samsung,debug-snapshot";
+		panic_to_wdt = <0x00>;
+		last_kmsg = <0x01>;
+		hold-key = <0x72>;
+		trigger-key = <0x74>;
+		scratch-offset = <0x810>;
+		scratch-bit = <0x06>;
+		freq_names = "LIT\0BIG\0INT\0MIF\0CAM\0DISP\0INTCAM\0AUD\0MFC0\0NPU\0DSU\0DNC\0CSIS\0ISP\0MFC1\0DSP\0ALIVE\0CHUB\0VTS\0HSI0\0G3D";
+		memory-region = <0x1e 0x1f 0x20 0x21 0x22 0x23 0x24 0x25>;
+		phandle = <0x103>;
+	};
+
+	dss-qdump {
+		compatible = "debug-snapshot,qdump";
+	};
+
+	dss-sfrdump {
+		compatible = "debug-snapshot,sfrdump";
+	};
+
+	dss-debug-kinfo {
+		compatible = "samsung,debug-snapshot-debug-kinfo";
+		memory-region = <0x26>;
+	};
+
+	debug-kinfo {
+		compatible = "google,debug-kinfo";
+		memory-region = <0x26>;
+	};
+
+	hardlockup-watchdog {
+		compatible = "samsung,hardlockup-watchdog";
+	};
+
+	exynos-debug-test {
+		compatible = "samsung,exynos-debug-test";
+		ps_hold_control_offset = <0x30c>;
+		scratch-offset = <0x810>;
+		dram-init-bit = <0x04>;
+		nr_cpu = <0x08>;
+		nr_little_cpu = <0x04>;
+		nr_big_cpu = <0x04>;
+		little_cpu_start = <0x00>;
+		big_cpu_start = <0x04>;
+	};
+
+	exynos-ecc-handler {
+		compatible = "samsung,exynos-ecc-handler";
+		interrupts = <0x00 0x4f 0x04 0x00 0x50 0x04 0x00 0x51 0x04 0x00 0x52 0x04 0x00 0x53 0x04 0x00 0x62 0x04 0x00 0x63 0x04 0x00 0x64 0x04 0x00 0x65 0x04 0x00 0x66 0x04>;
+		interrupt-names = "DSU(CL0), L3 DATA or TAG or Snoop filter RAM (Uncorrected Error)\0CORE0, L1 DATA or TAG RAM (Uncorrected Error)\0CORE1, L1 DATA or TAG RAM (Uncorrected Error)\0CORE2, L1 DATA or TAG RAM (Uncorrected Error)\0CORE3, L1 DATA or TAG RAM (Uncorrected Error)\0DSU(CL1), L3 DATA or TAG or Snoop filter RAM (Uncorrected Error)\0CORE4, L1 DATA or TAG RAM (Uncorrected Error)\0CORE5, L1 DATA or TAG RAM (Uncorrected Error)\0CORE6, L1 DATA or TAG RAM (Uncorrected Error)\0CORE7, L1 DATA or TAG RAM (Uncorrected Error)";
+		interrupt-affinity = <0x0f 0x01 0x02 0x04 0x08 0xf0 0x10 0x20 0x40 0x80>;
+	};
+
+	coresight {
+		compatible = "samsung,exynos-coresight";
+		dbg_base = <0x16410000 0x16510000 0x16610000 0x16710000 0x16810000 0x16910000 0x16a10000 0x16b10000>;
+		cti_base = <0x16420000 0x16520000 0x16620000 0x16720000 0x16820000 0x16920000 0x16a20000 0x16b20000>;
+		pmu_base = <0x16430000 0x16530000 0x16630000 0x16730000 0x16830000 0x16930000 0x16a30000 0x16b30000>;
+		gpr_base = <0x16001000>;
+		dbgack-mask = <0xff00000>;
+		halt = <0x00>;
+		retention = <0x00>;
+	};
+
+	ITMON@0 {
+		compatible = "samsung,exynos-itmon";
+		memory-region = <0x27>;
+		interrupts = <0x00 0x1ce 0x04 0x00 0x1cd 0x04>;
+		status = "ok";
+		err_tmout = <0x03>;
+		err_prtchker = <0x03>;
+		err_decerr = <0x03>;
+		err_slverr = <0x03>;
+		err_fatal = <0x00>;
+
+		customize {
+
+			node0 {
+				node = "M_CPU";
+				prio = <0x01>;
+				decerr_job = <0x00>;
+				slverr_job = <0x03>;
+				tmout_job = <0x03>;
+			};
+
+			node1 {
+				node = "CP_0";
+				prio = <0x02>;
+				decerr_job = <0x00>;
+				slverr_job = <0x00>;
+				tmout_job = <0x03>;
+			};
+
+			node2 {
+				node = "CP_1";
+				prio = <0x02>;
+				decerr_job = <0x00>;
+				slverr_job = <0x00>;
+				tmout_job = <0x03>;
+			};
+
+			node3 {
+				node = "HSI";
+				prio = <0x02>;
+				decerr_job = <0x03>;
+				slverr_job = <0x03>;
+				tmout_job = <0x03>;
+			};
+		};
+	};
+
+	exynos-ehld {
+		compatible = "exynos-ehld";
+		#address-cells = <0x01>;
+		#size-cells = <0x01>;
+		cs_base = <0x16000000>;
+
+		cpu0 {
+			dbg-offset = <0x410000>;
+		};
+
+		cpu1 {
+			dbg-offset = <0x510000>;
+		};
+
+		cpu2 {
+			dbg-offset = <0x610000>;
+		};
+
+		cpu3 {
+			dbg-offset = <0x710000>;
+		};
+
+		cpu4 {
+			dbg-offset = <0x810000>;
+		};
+
+		cpu5 {
+			dbg-offset = <0x910000>;
+		};
+
+		cpu6 {
+			dbg-offset = <0xa10000>;
+		};
+
+		cpu7 {
+			dbg-offset = <0xb10000>;
+		};
+	};

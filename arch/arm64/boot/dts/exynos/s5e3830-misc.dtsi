@@ -1,0 +1,37 @@
+/* Samsung Exynos 850 (S5E3830) - ADC, PWM and FM receivers */
+
+	adc@11C40000 {
+		compatible = "samsung,exynos-adc-v3";
+		reg = <0x00 0x11c40000 0x100>;
+		interrupts = <0x00 0x00 0x04>;
+		#io-channel-cells = <0x01>;
+		io-channel-ranges;
+		clocks = <0x03 0x98>;
+		clock-names = "gate_adcif";
+		phandle = <0x15a>;
+	};
+
+	pwm@13970000 {
+		compatible = "samsung,s3c6400-pwm";
+		reg = <0x00 0x13970000 0x1000>;
+		samsung,pwm-outputs = <0x00 0x01 0x02 0x03 0x04>;
+		#pwm-cells = <0x03>;
+		clocks = <0x03 0x238 0x03 0x01>;
+		clock-names = "pwm_pclk\0pwm_sclk";
+		status = "ok";
+		phandle = <0x15b>;
+	};
+
+	fm@14AC0000 {
+		compatible = "samsung,exynos3830-fm";
+		reg = <0x00 0x14ac0000 0x2000>;
+		elna_gpio = <0x96 0x03 0x01>;
+		pinctrl-names = "active\0sleep";
+		pinctrl-0 = <0x97>;
+		pinctrl-1 = <0x98>;
+		clocks = <0x03 0x55 0x03 0x37 0x03 0x4b>;
+		clock-names = "mux_aud_fm\0qch_fm\0clk_aud_fm";
+		samsung,syscon-phandle = <0x6e>;
+		samsung,power-domain = <0x33>;
+		status = "okay";
+	};

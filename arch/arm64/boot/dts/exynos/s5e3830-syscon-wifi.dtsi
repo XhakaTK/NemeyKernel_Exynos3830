@@ -1,0 +1,51 @@
+/* Samsung Exynos 850 (S5E3830) - system controllers and Wi-Fi/BT coex */
+
+	syscon@11A50000 {
+		compatible = "i3c_apm_pmic\0syscon";
+		reg = <0x00 0x11a50000 0x1800>;
+		phandle = <0x85>;
+	};
+
+	syscon@14C20000 {
+		compatible = "dbus_baaw\0syscon";
+		reg = <0x00 0x14c20000 0x300>;
+		phandle = <0x86>;
+	};
+
+	syscon@14C30000 {
+		compatible = "pbus_baaw\0syscon";
+		reg = <0x00 0x14c30000 0x300>;
+		phandle = <0x87>;
+	};
+
+	syscon@14C50000 {
+		compatible = "wlbt_remap\0syscon";
+		reg = <0x00 0x14c50000 0x500>;
+		phandle = <0x88>;
+	};
+
+	syscon@14C60000 {
+		compatible = "boot_cfg\0syscon";
+		reg = <0x00 0x14c60000 0x1200>;
+		phandle = <0x89>;
+	};
+
+	scsc_wifibt@119C0000 {
+		compatible = "samsung,scsc_wifibt";
+		memory-region = <0x84>;
+		reg = <0x00 0x119c0000 0x180>;
+		interrupts = <0x00 0x36 0x04 0x00 0x26 0x04 0x00 0xe6 0x04 0x00 0xe7 0x04>;
+		interrupt-names = "MBOX\0ALIVE\0CFG_REQ\0WDOG";
+		samsung,syscon-phandle = <0x6e>;
+		samsung,i3c_apm_pmic-syscon-phandle = <0x85>;
+		samsung,dbus_baaw-syscon-phandle = <0x86>;
+		samsung,pbus_baaw-syscon-phandle = <0x87>;
+		samsung,wlbt_remap-syscon-phandle = <0x88>;
+		samsung,boot_cfg-syscon-phandle = <0x89>;
+		phandle = <0x144>;
+	};
+
+	scsc_bt_qos {
+		compatible = "samsung,scsc_bt_qos";
+		bluetooth_qos = <0x186a00 0x66c88 0x20788 0x7bc78 0x0a 0xa2990 0x61a80 0x118c30 0x14 0xf4240 0x82208 0x21b8d0>;
+	};
