@@ -433,7 +433,7 @@ static bool secdbg_hardlockup_check_ehld_info(unsigned int cpu, unsigned long lo
 
 static void secdbg_hardlockup_save_ehld_type(unsigned int cpu)
 {
-	struct ehld_data *data = ehld_get_ctrl_data(cpu);
+	struct exynos_ehld_data *data = ehld_get_ctrl_data(cpu);
 	struct hardlockup_info *hl_info = per_cpu_ptr(&percpu_hl_info, cpu);
 	unsigned long index;
 
@@ -444,7 +444,7 @@ static void secdbg_hardlockup_save_ehld_type(unsigned int cpu)
 
 	hl_info->ehld_type = 0;
 
-	if (secdbg_hardlockup_check_ehld_info(cpu, data->time, data->instret, index))
+	if (secdbg_hardlockup_check_ehld_info(cpu, data->time, data->pmpcsr, index))
 		hl_info->ehld_type |= (1 << NO_INSTRET);
 }
 
