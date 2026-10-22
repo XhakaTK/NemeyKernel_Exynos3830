@@ -1,0 +1,408 @@
+/* Samsung Exynos 850 (S5E3830) - TMU instances and thermal zones */
+
+	LITTLE0@10070000 {
+		compatible = "samsung,exynos3830-tmu";
+		reg = <0x00 0x10070000 0x800>;
+		interrupts = <0x00 0xe2 0x04>;
+		tmu_name = "LITTLE0";
+		id = <0x00>;
+		sensors = <0x02>;
+		cal_id = <0xb040002>;
+		#thermal-sensor-cells = <0x00>;
+		samsung,tmu_gain = <0x00>;
+		samsung,tmu_reference_voltage = <0x00>;
+		samsung,tmu_noise_cancel_mode = <0x04>;
+		samsung,tmu_efuse_value = <0x37>;
+		samsung,tmu_first_point_trim = <0x19>;
+		samsung,tmu_second_point_trim = <0x55>;
+		samsung,tmu_default_temp_offset = <0x32>;
+		samsung,tmu_default_trip_temp = <0x73>;
+		samsung,tmu_cal_type = <0x00>;
+		samsung,tmu_sensor_type = <0x08>;
+		phandle = <0x99>;
+	};
+
+	LITTLE1@10070000 {
+		compatible = "samsung,exynos3830-tmu";
+		reg = <0x00 0x10070000 0x800>;
+		interrupts = <0x00 0xe2 0x04>;
+		tmu_name = "LITTLE1";
+		id = <0x01>;
+		sensors = <0x04>;
+		cal_id = <0xb040003>;
+		hotplug_enable = <0x01>;
+		hotplug_in_threshold = <0x5b>;
+		hotplug_out_threshold = <0x60>;
+		cpu_domain = "4-7";
+		thermal_status_level = <0x13880 0x14c08 0x15f90>;
+		#thermal-sensor-cells = <0x00>;
+		samsung,tmu_gain = <0x00>;
+		samsung,tmu_reference_voltage = <0x00>;
+		samsung,tmu_noise_cancel_mode = <0x04>;
+		samsung,tmu_efuse_value = <0x37>;
+		samsung,tmu_first_point_trim = <0x19>;
+		samsung,tmu_second_point_trim = <0x55>;
+		samsung,tmu_default_temp_offset = <0x32>;
+		samsung,tmu_default_trip_temp = <0x73>;
+		samsung,tmu_cal_type = <0x00>;
+		samsung,tmu_sensor_type = <0x08>;
+		phandle = <0xa3>;
+	};
+
+	G3D@10070000 {
+		compatible = "samsung,exynos3830-tmu";
+		reg = <0x00 0x10070000 0x800>;
+		interrupts = <0x00 0xe2 0x04>;
+		tmu_name = "G3D";
+		id = <0x02>;
+		sensors = <0x08>;
+		#thermal-sensor-cells = <0x00>;
+		samsung,tmu_gain = <0x00>;
+		samsung,tmu_reference_voltage = <0x00>;
+		samsung,tmu_noise_cancel_mode = <0x04>;
+		samsung,tmu_efuse_value = <0x37>;
+		samsung,tmu_first_point_trim = <0x19>;
+		samsung,tmu_second_point_trim = <0x55>;
+		samsung,tmu_default_temp_offset = <0x32>;
+		samsung,tmu_default_trip_temp = <0x73>;
+		samsung,tmu_cal_type = <0x00>;
+		samsung,tmu_sensor_type = <0x08>;
+		phandle = <0xad>;
+	};
+
+	acpm_tmu {
+		acpm-ipc-channel = <0x09>;
+	};
+
+	thermal-zones {
+
+		LITTLE0 {
+			zone_name = "LITTLE0_THERMAL";
+			polling-delay-passive = <0x00>;
+			polling-delay = <0x3e8>;
+			thermal-sensors = <0x99>;
+			phandle = <0x15c>;
+
+			trips {
+
+				lit0-alert0 {
+					temperature = <0x4e20>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0x9a>;
+				};
+
+				lit0-alert1 {
+					temperature = <0x128e0>;
+					hysteresis = <0x7d0>;
+					type = "active";
+					phandle = <0x9c>;
+				};
+
+				lit0-alert2 {
+					temperature = <0x13c68>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0x9d>;
+				};
+
+				lit0-alert3 {
+					temperature = <0x14ff0>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0x9e>;
+				};
+
+				lit0-alert4 {
+					temperature = <0x16378>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0x9f>;
+				};
+
+				lit0-alert5 {
+					temperature = <0x17700>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xa0>;
+				};
+
+				lit0-alert6 {
+					temperature = <0x18a88>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xa1>;
+				};
+
+				lit0-hot {
+					temperature = <0x1c138>;
+					hysteresis = <0x1388>;
+					type = "hot";
+					phandle = <0xa2>;
+				};
+			};
+
+			cooling-maps {
+
+				map0 {
+					trip = <0x9a>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map1 {
+					trip = <0x9c>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map2 {
+					trip = <0x9d>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map3 {
+					trip = <0x9e>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map4 {
+					trip = <0x9f>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map5 {
+					trip = <0xa0>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map6 {
+					trip = <0xa1>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+
+				map7 {
+					trip = <0xa2>;
+					cooling-device = <0x9b 0x00 0x00>;
+				};
+			};
+		};
+
+		LITTLE1 {
+			zone_name = "LITTLE1_THERMAL";
+			polling-delay-passive = <0x00>;
+			polling-delay = <0x00>;
+			thermal-sensors = <0xa3>;
+			phandle = <0x15d>;
+
+			trips {
+
+				lit1-alert0 {
+					temperature = <0x4e20>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xa4>;
+				};
+
+				lit1-alert1 {
+					temperature = <0x128e0>;
+					hysteresis = <0x7d0>;
+					type = "active";
+					phandle = <0xa6>;
+				};
+
+				lit1-alert2 {
+					temperature = <0x13c68>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xa7>;
+				};
+
+				lit1-alert3 {
+					temperature = <0x14ff0>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xa8>;
+				};
+
+				lit1-alert4 {
+					temperature = <0x16378>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xa9>;
+				};
+
+				lit1-alert5 {
+					temperature = <0x17700>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xaa>;
+				};
+
+				lit1-alert6 {
+					temperature = <0x18a88>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xab>;
+				};
+
+				lit1-hot {
+					temperature = <0x1c138>;
+					hysteresis = <0x1388>;
+					type = "hot";
+					phandle = <0xac>;
+				};
+			};
+
+			cooling-maps {
+
+				map0 {
+					trip = <0xa4>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map1 {
+					trip = <0xa6>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map2 {
+					trip = <0xa7>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map3 {
+					trip = <0xa8>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map4 {
+					trip = <0xa9>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map5 {
+					trip = <0xaa>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map6 {
+					trip = <0xab>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+
+				map7 {
+					trip = <0xac>;
+					cooling-device = <0xa5 0x00 0x00>;
+				};
+			};
+		};
+
+		G3D {
+			zone_name = "G3D_THERMAL";
+			polling-delay-passive = <0x00>;
+			polling-delay = <0x00>;
+			thermal-sensors = <0xad>;
+			phandle = <0x15e>;
+
+			trips {
+
+				gpu-alert0 {
+					temperature = <0x4e20>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xae>;
+				};
+
+				gpu-alert1 {
+					temperature = <0x128e0>;
+					hysteresis = <0x7d0>;
+					type = "active";
+					phandle = <0xb0>;
+				};
+
+				gpu-alert2 {
+					temperature = <0x13c68>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xb1>;
+				};
+
+				gpu-alert3 {
+					temperature = <0x14ff0>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xb2>;
+				};
+
+				gpu-alert4 {
+					temperature = <0x16378>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xb3>;
+				};
+
+				gpu-alert5 {
+					temperature = <0x17700>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xb4>;
+				};
+
+				gpu-alert6 {
+					temperature = <0x18a88>;
+					hysteresis = <0x1388>;
+					type = "active";
+					phandle = <0xb5>;
+				};
+
+				gpu-hot {
+					temperature = <0x1c138>;
+					hysteresis = <0x1388>;
+					type = "hot";
+					phandle = <0xb6>;
+				};
+			};
+
+			cooling-maps {
+
+				map0 {
+					trip = <0xae>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map1 {
+					trip = <0xb0>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map2 {
+					trip = <0xb1>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map3 {
+					trip = <0xb2>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map4 {
+					trip = <0xb3>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map5 {
+					trip = <0xb4>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map6 {
+					trip = <0xb5>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+
+				map7 {
+					trip = <0xb6>;
+					cooling-device = <0xaf 0x00 0x00>;
+				};
+			};
+		};
+	};

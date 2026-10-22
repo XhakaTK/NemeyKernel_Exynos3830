@@ -1,0 +1,246 @@
+/* Samsung Exynos 850 (S5E3830) - reserved memory regions */
+
+	reserved-memory {
+		#address-cells = <0x02>;
+		#size-cells = <0x01>;
+		ranges;
+		phandle = <0xfd>;
+
+		el3mon_reserve {
+			compatible = "exynos,el3mon";
+			reg = <0x00 0xbff80000 0x80000>;
+		};
+
+		seclog_mem {
+			compatible = "exynos,seclog";
+			reg = <0x00 0xc3000000 0x80000>;
+			phandle = <0x77>;
+		};
+
+		log_itmon {
+			reg = <0x00 0xeffef000 0x10000>;
+			no-map;
+			phandle = <0x27>;
+		};
+
+		ramoops {
+			compatible = "ramoops";
+			reg = <0x00 0xf1200000 0x800000>;
+			record-size = <0x40000>;
+			console-size = <0x100000>;
+			pmsg-size = <0x200000>;
+			ftrace-size = <0x200000>;
+		};
+
+		debug_snapshot {
+			#address-cells = <0x02>;
+			#size-cells = <0x01>;
+			phandle = <0xfe>;
+
+			header {
+				compatible = "header";
+				reg = <0x00 0xf0000000 0x10000>;
+				no-map;
+				phandle = <0x1e>;
+			};
+
+			log_kernel {
+				compatible = "log_kernel";
+				reg = <0x00 0xf0010000 0x200000>;
+				phandle = <0x1f>;
+			};
+
+			log_platform {
+				compatible = "log_platform";
+				reg = <0x00 0xf0210000 0x200000>;
+				phandle = <0x22>;
+			};
+
+			log_first {
+				compatible = "log_first";
+				reg = <0x00 0xf0610000 0x200000>;
+				status = "no";
+				phandle = <0x20>;
+			};
+
+			log_kevents {
+				compatible = "log_kevents";
+				reg = <0x00 0xf0810000 0x430000>;
+				status = "no";
+				phandle = <0x23>;
+			};
+
+			log_kevents_small {
+				compatible = "log_kevents";
+				reg = <0x00 0xf0810000 0xa6000>;
+				phandle = <0x25>;
+			};
+
+			log_arrdumpreset {
+				compatible = "log_arrdumpreset";
+				reg = <0x00 0xf0d10000 0x400000>;
+				status = "no";
+				phandle = <0x21>;
+			};
+		};
+
+		memlog_region {
+			compatible = "shared-dma-pool";
+			no-map;
+			alloc-ranges = <0x00 0x80000000 0x78000000>;
+			size = <0x1400000>;
+			status = "no";
+			phandle = <0xff>;
+		};
+
+		abox-rmem {
+			compatible = "exynos,abox_rmem";
+			size = <0x1400000>;
+			alloc-ranges = <0x00 0xc0000000 0x20000000>;
+			phandle = <0x79>;
+		};
+
+		abox-dbg {
+			compatible = "exynos,abox_dbg";
+			size = <0x400000>;
+			alloc-ranges = <0x00 0xc0000000 0x20000000>;
+			phandle = <0x82>;
+		};
+
+		abox-slog {
+			compatible = "exynos,abox_slog";
+			size = <0x2800000>;
+			alloc-ranges = <0x00 0xc0000000 0x20000000>;
+			phandle = <0x83>;
+		};
+
+		debug_kinfo_reserved@fcfff000 {
+			reg = <0x00 0xfcfff000 0x1000>;
+			no-map;
+			phandle = <0x26>;
+		};
+
+		log_backtrace {
+			compatible = "log_backtrace";
+			alloc-ranges = <0x00 0x80000000 0x68000000>;
+			size = <0x2000>;
+			phandle = <0x24>;
+		};
+
+		ect_binary {
+			compatible = "exynos,ect_rmem";
+			reg = <0x00 0x90000000 0x4b000>;
+			phandle = <0x95>;
+		};
+
+		wifibt_if {
+			compatible = "exynos,wifibt_if";
+			size = <0xc00000>;
+			phandle = <0x84>;
+		};
+
+		gnss_rmem {
+			compatible = "samsung,exynos-gnss";
+			reg = <0x00 0xee000000 0x600000>;
+			phandle = <0x100>;
+		};
+
+		cp_rmem {
+			compatible = "exynos,modem_if";
+			reg = <0x00 0xd0000000 0x8800000>;
+			rmem_index = <0x00>;
+			phandle = <0x101>;
+		};
+
+		mfc_fw_rmem {
+			compatible = "shared-dma-pool";
+			reg = <0x08 0xa2400000 0x400000>;
+			alignment = <0x00 0x10000>;
+			reusable;
+			phandle = <0x8c>;
+		};
+
+		log_bcm {
+			compatible = "exynos,bcmdbg";
+			reg = <0x00 0xfc000000 0x100000>;
+			phandle = <0xb7>;
+		};
+
+		crypto {
+			compatible = "shared-dma-pool";
+			size = <0x2000000>;
+			alignment = <0x00 0x400000>;
+			reusable;
+			phandle = <0x28>;
+		};
+
+		vstream {
+			compatible = "shared-dma-pool";
+			size = <0x1c00000>;
+			alloc-ranges = <0x00 0x40000000 0xb0000000>;
+			alignment = <0x00 0x400000>;
+			reusable;
+			phandle = <0x29>;
+		};
+
+		tui {
+			compatible = "shared-dma-pool";
+			size = <0xc00000>;
+			alloc-ranges = <0x00 0x40000000 0xb0000000>;
+			alignment = <0x00 0x400000>;
+			reusable;
+			phandle = <0x2d>;
+		};
+
+		secure_camera {
+			compatible = "shared-dma-pool";
+			reg = <0x00 0xe1900000 0x1520000>;
+			alignment = <0x00 0x10000>;
+			phandle = <0x2e>;
+		};
+
+		camera_contig {
+			compatible = "shared-dma-pool";
+			reg = <0x00 0xe35a0000 0x700000>;
+			alignment = <0x00 0x10000>;
+			phandle = <0x2f>;
+		};
+
+		secure_camera_ext {
+			compatible = "shared-dma-pool";
+			reg = <0x00 0xe2e20000 0x780000>;
+			alignment = <0x00 0x10000>;
+			phandle = <0x30>;
+		};
+
+		camera_uncached {
+			compatible = "shared-dma-pool";
+			reg = <0x00 0xdb900000 0x400000>;
+			alignment = <0x00 0x10000>;
+			phandle = <0x31>;
+		};
+
+		vframe {
+			compatible = "shared-dma-pool";
+			size = <0x5800000>;
+			alignment = <0x00 0x10000>;
+			reusable;
+			phandle = <0x2a>;
+		};
+
+		vscaler {
+			compatible = "shared-dma-pool";
+			size = <0x2000000>;
+			alignment = <0x00 0x10000>;
+			reusable;
+			phandle = <0x2b>;
+		};
+
+		ext_ui {
+			compatible = "shared-dma-pool";
+			size = <0x1800000>;
+			alignment = <0x00 0x10000>;
+			reusable;
+			phandle = <0x2c>;
+		};
+	};

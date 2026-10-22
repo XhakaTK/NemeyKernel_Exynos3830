@@ -1,0 +1,1130 @@
+/* Samsung Exynos 850 (S5E3830) - CPU topology, power management and performance sets */
+
+	arm-pmu {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <0x00 0x59 0x04 0x00 0x5a 0x04 0x00 0x5b 0x04 0x00 0x5c 0x04 0x00 0x6c 0x04 0x00 0x6d 0x04 0x00 0x6e 0x04 0x00 0x6f 0x04>;
+		interrupt-affinity = <0x4e 0x4f 0x50 0x51 0x52 0x53 0x54 0x55>;
+	};
+
+	power-data {
+
+		cpu {
+
+			ananke-power-data0 {
+				cpus = "0-3";
+				capacity-dmips-mhz = <0x10f>;
+				dynamic-power-coefficient = <0x7d>;
+				static-power-coefficient = <0x0a>;
+				dhry-to-clang-dp-ratio = <0x334>;
+				dhry-to-clang-cap-ratio = <0x174>;
+			};
+
+			ananke-power-data1 {
+				cpus = "4-7";
+				capacity-dmips-mhz = <0x10f>;
+				dynamic-power-coefficient = <0x7d>;
+				static-power-coefficient = <0x0a>;
+				dhry-to-clang-dp-ratio = <0x334>;
+				dhry-to-clang-cap-ratio = <0x174>;
+			};
+		};
+	};
+
+	cpus {
+		#address-cells = <0x02>;
+		#size-cells = <0x00>;
+
+		cpu-map {
+
+			cluster0 {
+
+				core0 {
+					cpu = <0x4e>;
+				};
+
+				core1 {
+					cpu = <0x4f>;
+				};
+
+				core2 {
+					cpu = <0x50>;
+				};
+
+				core3 {
+					cpu = <0x51>;
+				};
+			};
+
+			cluster1 {
+
+				core0 {
+					cpu = <0x52>;
+				};
+
+				core1 {
+					cpu = <0x53>;
+				};
+
+				core2 {
+					cpu = <0x54>;
+				};
+
+				core3 {
+					cpu = <0x55>;
+				};
+			};
+		};
+
+		cpu@0000 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x00>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x4e>;
+		};
+
+		cpu@0001 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x100>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x4f>;
+		};
+
+		cpu@0002 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x200>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x50>;
+		};
+
+		cpu@0003 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x300>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x51>;
+		};
+
+		cpu@0004 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x10000>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x52>;
+		};
+
+		cpu@0005 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x10100>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x53>;
+		};
+
+		cpu@0006 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x10200>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x54>;
+		};
+
+		cpu@0007 {
+			device_type = "cpu";
+			compatible = "arm,ananke\0arm,armv8";
+			reg = <0x00 0x10300>;
+			enable-method = "psci";
+			cpu-idle-states = <0x56>;
+			phandle = <0x55>;
+		};
+	};
+
+	idle-states {
+		entry-method = "arm,psci";
+
+		ananke-cpu-sleep {
+			idle-state-name = "c2";
+			compatible = "arm,idle-state";
+			arm,psci-suspend-param = <0x10000>;
+			entry-latency-us = <0x46>;
+			exit-latency-us = <0xa0>;
+			min-residency-us = <0x7d0>;
+			status = "okay";
+			phandle = <0x56>;
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-1.0";
+		method = "smc";
+	};
+
+	freq-qos-tracer {
+		compatible = "samsung,freq-qos-tracer";
+		status = "okay";
+	};
+
+	exynos-acme {
+		compatible = "samsung,exynos-acme";
+		status = "okay";
+
+		domain@0 {
+			sibling-cpus = "0-3";
+			cal-id = <0xb040002>;
+			dm-type = <0x00>;
+			min-freq = <0x854d0>;
+			thread-run-on = "0-3";
+			#cooling-cells = <0x02>;
+			ect-coeff-index = <0x01>;
+			tz-cooling-name = "LITTLE0";
+			freq-table = <0x6be90 0x854d0 0x9eb10 0xc4c70 0xe7b08 0x101148 0x11a788 0x13d620 0x163780 0x183350 0x1a94b0 0x1c2af0 0x1e8c50 0x21b8d0>;
+			phandle = <0x9b>;
+
+			dm-constraints {
+				list = <0x57 0x58>;
+			};
+
+			slack_timer {
+				device_type = "slack-timer-domain";
+			};
+		};
+
+		domain@1 {
+			sibling-cpus = "4-7";
+			cal-id = <0xb040003>;
+			dm-type = <0x01>;
+			min-freq = <0x854d0>;
+			need-awake;
+			thread-run-on = "0-3";
+			#cooling-cells = <0x02>;
+			ect-coeff-index = <0x00>;
+			tz-cooling-name = "LITTLE1";
+			freq-table = <0x6be90 0x854d0 0x9eb10 0xc4c70 0xe7b08 0x101148 0x11a788 0x13d620 0x163780 0x183350 0x1a94b0 0x1c2af0 0x1e8c50 0x21b8d0>;
+			phandle = <0xa5>;
+
+			dm-constraints {
+				list = <0x59 0x5a>;
+			};
+
+			slack_timer {
+				device_type = "slack-timer-domain";
+				expired_time = <0x50>;
+			};
+		};
+	};
+
+	dm-tables {
+
+		dm-table@0000 {
+			const-type = <0x00>;
+			dm-slave = <0x02>;
+			master-cal-id = <0xb040002>;
+			slave-cal-id = <0xb040000>;
+			dynamic-disable;
+			phandle = <0x57>;
+
+			normal {
+				table = <0x6be90 0xa50a0 0x854d0 0xa50a0 0x9eb10 0xa50a0 0xc4c70 0xa50a0 0xe7b08 0xa50a0 0x101148 0xce4c8 0x11a788 0xce4c8 0x13d620 0xf78f0 0x163780 0xf78f0 0x183350 0x14a140 0x1a94b0 0x14a140 0x1c2af0 0x177bb8 0x1e8c50 0x177bb8 0x21b8d0 0x177bb8>;
+			};
+		};
+
+		dm-table@0001 {
+			const-type = <0x00>;
+			dm-slave = <0x02>;
+			master-cal-id = <0xb040003>;
+			slave-cal-id = <0xb040000>;
+			dynamic-disable;
+			phandle = <0x59>;
+
+			normal {
+				table = <0x6be90 0xa50a0 0x854d0 0xa50a0 0x9eb10 0xa50a0 0xc4c70 0xa50a0 0xe7b08 0xa50a0 0x101148 0xce4c8 0x11a788 0xce4c8 0x13d620 0xf78f0 0x163780 0xf78f0 0x183350 0x14a140 0x1a94b0 0x14a140 0x1c2af0 0x177bb8 0x1e8c50 0x177bb8 0x21b8d0 0x177bb8>;
+			};
+		};
+
+		dm-table@0002 {
+			guidance;
+			const-type = <0x00>;
+			dm-slave = <0x02>;
+			master-cal-id = <0xb040002>;
+			slave-cal-id = <0xb040000>;
+			phandle = <0x58>;
+
+			skew {
+				ect-name = "dvfs_cpucl0";
+			};
+		};
+
+		dm-table@0003 {
+			guidance;
+			const-type = <0x00>;
+			dm-slave = <0x02>;
+			master-cal-id = <0xb040003>;
+			slave-cal-id = <0xb040000>;
+			phandle = <0x5a>;
+
+			skew {
+				ect-name = "dvfs_cpucl1";
+			};
+		};
+	};
+
+	exynos-cpupm {
+		compatible = "samsung,exynos-cpupm";
+		status = "okay";
+
+		cpd_cl0 {
+			device_type = "cpupm";
+			target-residency = <0x2710>;
+			type = <0x00>;
+			cal-id = <0x00>;
+			siblings = "0-3";
+		};
+
+		cpd_cl1 {
+			device_type = "cpupm";
+			target-residency = <0x2710>;
+			type = <0x00>;
+			cal-id = <0x01>;
+			siblings = "4-7";
+			entry-allowed = "4-7";
+		};
+
+		sicd {
+			device_type = "cpupm";
+			target-residency = <0x2710>;
+			type = <0x02>;
+			siblings = "0-7";
+			entry-allowed = "0-7";
+		};
+
+		wakeup-mask {
+
+			wakeup-masks {
+
+				wakeup-mask {
+					mask-reg-offset = <0x3944>;
+					stat-reg-offset = <0x3950>;
+					mask = <0xff7fffff>;
+
+					checklist {
+						status-offset = <0x3084>;
+						active-mask = <0x80000>;
+					};
+				};
+
+				wakeup-mask2 {
+					mask-reg-offset = <0x3964>;
+					stat-reg-offset = <0x3954>;
+					mask = <0x3e1e>;
+				};
+			};
+
+			eint-wakeup-masks {
+
+				eint-wakeup-mask {
+					mask-reg-offset = <0x60c>;
+				};
+
+				eint-wakeup-mask2 {
+					mask-reg-offset = <0x61c>;
+				};
+			};
+		};
+	};
+
+	exynos-cpuhp {
+		compatible = "samsung,exynos-cpuhp";
+		status = "okay";
+	};
+
+	exynos-ufcc {
+		compatible = "samsung,exynos-ufcc";
+		status = "okay";
+
+		ucc {
+
+			ucc-config0 {
+				index = <0x00>;
+				allowed = "0-7";
+			};
+
+			ucc-config1 {
+				index = <0x01>;
+				allowed = "4-7";
+			};
+
+			ucc-config2 {
+				index = <0x02>;
+			};
+		};
+
+		ufc {
+			table-info = "vfreq\0lit-2nd\0lit\0emstune\0strict";
+
+			domains {
+
+				domain@0 {
+					domain-name = "lit";
+					shared-cpus = "0-3";
+				};
+
+				domain@1 {
+					domain-name = "lit-2nd";
+					shared-cpus = "4-7";
+					allow-disable-cpus;
+				};
+			};
+
+			limits {
+
+				max-limit {
+					relation = <0x01>;
+					table = <0x1e8c50 0x1e8c50 0x1e8c50 0x00 0x00 0x1c2af0 0x1c2af0 0x1c2af0 0x00 0x00 0x1a94b0 0x1a94b0 0x1a94b0 0x00 0x00 0x183350 0x183350 0x183350 0x00 0x00 0x163780 0x163780 0x163780 0x00 0x00 0x13d620 0x13d620 0x13d620 0x00 0x00 0x11a788 0x11a788 0x11a788 0x00 0x00 0x101148 0x101148 0x101148 0x00 0x00 0xe7b08 0xe7b08 0xe7b08 0x00 0x00 0xc4c70 0xc4c70 0xc4c70 0x00 0x00 0x9eb10 0x9eb10 0x9eb10 0x00 0x00 0x854d0 0x854d0 0x854d0 0x00 0x00>;
+				};
+
+				min-limit {
+					relation = <0x00>;
+					table = <0x1e8c50 0x1e8c50 0x1e8c50 0x02 0x01 0x1c2af0 0x1c2af0 0x1c2af0 0x01 0x01 0x1a94b0 0x1a94b0 0x1a94b0 0x01 0x01 0x183350 0x183350 0x183350 0x01 0x01 0x163780 0x163780 0x163780 0x01 0x01 0x13d620 0x13d620 0x13d620 0x01 0x01 0x11a788 0x11a788 0x11a788 0x01 0x01 0x101148 0x101148 0x101148 0x01 0x01 0xe7b08 0xe7b08 0xe7b08 0x01 0x01 0xc4c70 0xc4c70 0xc4c70 0x01 0x01 0x9eb10 0x9eb10 0x9eb10 0x00 0x01 0x854d0 0x854d0 0x854d0 0x00 0x01>;
+				};
+			};
+		};
+	};
+
+	boot_set {
+		phandle = <0x5b>;
+
+		freqboost {
+			top-app = <0x05 0x05>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		fclamp {
+
+			monitor-group {
+				top-app = <0x01>;
+			};
+		};
+	};
+
+	set@0000 {
+		phandle = <0x5c>;
+
+		freqboost {
+			top-app = <0x03 0x03>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x64>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+			dynamic-busy-ratio = <0x46 0x46>;
+		};
+
+		fclamp {
+
+			monitor-group {
+				top-app = <0x01>;
+			};
+		};
+
+		cpufreq_gov {
+			htask-boost = <0x96 0x96>;
+		};
+
+		ntu {
+			root = <0x05>;
+			foreground = <0x19>;
+			background = <0x05>;
+			top-app = <0x19>;
+			rt = <0x05>;
+			system = <0x05>;
+			system-background = <0x05>;
+			nnapi-hal = <0x05>;
+			camera-daemon = <0x05>;
+		};
+	};
+
+	set@0001 {
+		phandle = <0x5d>;
+
+		freqboost {
+			top-app = <0x0a 0x0a>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x19>;
+		};
+
+		ecs {
+		};
+
+		tex {
+			top-app = <0x01>;
+			prio = <0x77>;
+		};
+	};
+
+	set@0002 {
+		phandle = <0x5e>;
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		tex {
+			top-app = <0x01>;
+			prio = <0x6e>;
+		};
+
+		gsc {
+			up_threshold = <0x00>;
+
+			monitor-group {
+				top-app = <0x01>;
+				foreground = <0x01>;
+			};
+		};
+
+		ntu {
+			root = <0x00>;
+			foreground = <0x00>;
+			background = <0x00>;
+			top-app = <0x00>;
+			rt = <0x00>;
+			system = <0x00>;
+			system-background = <0x00>;
+			nnapi-hal = <0x00>;
+			camera-daemon = <0x00>;
+		};
+	};
+
+	set@0100 {
+		phandle = <0x5f>;
+
+		frt {
+			active-ratio = <0x19 0x64>;
+		};
+
+		ecs_dynamic {
+			dynamic-busy-ratio = <0x46 0x46>;
+		};
+
+		fclamp {
+
+			monitor-group {
+				top-app = <0x01>;
+			};
+		};
+
+		cpufreq_gov {
+			htask-boost = <0x00 0x00>;
+		};
+
+		ntu {
+			root = <0x05>;
+			foreground = <0x19>;
+			background = <0x05>;
+			top-app = <0x19>;
+			rt = <0x05>;
+			system = <0x05>;
+			system-background = <0x05>;
+			nnapi-hal = <0x05>;
+			camera-daemon = <0x05>;
+		};
+	};
+
+	set@0101 {
+		phandle = <0x60>;
+
+		frt {
+			active-ratio = <0x19 0x19>;
+		};
+	};
+
+	set@0102 {
+		phandle = <0x61>;
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		tex {
+		};
+
+		gsc {
+			up_threshold = <0x00>;
+
+			monitor-group {
+				top-app = <0x01>;
+				foreground = <0x01>;
+			};
+		};
+	};
+
+	set@0200 {
+		phandle = <0x62>;
+
+		freqboost {
+			top-app = <0x05 0x05>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x64>;
+		};
+
+		fclamp {
+
+			monitor-group {
+				top-app = <0x01>;
+			};
+		};
+
+		cpufreq_gov {
+			htask-boost = <0x96 0x96>;
+		};
+	};
+
+	set@0201 {
+		phandle = <0x63>;
+	};
+
+	set@0202 {
+		phandle = <0x64>;
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		tex {
+		};
+
+		gsc {
+			up_threshold = <0x00>;
+
+			monitor-group {
+				top-app = <0x01>;
+				foreground = <0x01>;
+			};
+		};
+	};
+
+	set@0300 {
+		phandle = <0x65>;
+
+		frt {
+			active-ratio = <0x32 0x64>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+			dynamic-busy-ratio = <0x46 0x46>;
+		};
+
+		cpus_binding {
+			target-sched-class = <0x08>;
+			background = "0-3";
+		};
+
+		fclamp {
+
+			monitor-group {
+				top-app = <0x01>;
+			};
+		};
+
+		cpufreq_gov {
+			htask-boost = <0x32 0x32>;
+		};
+	};
+
+	set@0301 {
+		phandle = <0x66>;
+	};
+
+	set@0302 {
+		phandle = <0x67>;
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		tex {
+		};
+
+		gsc {
+			up_threshold = <0x00>;
+
+			monitor-group {
+				top-app = <0x01>;
+				foreground = <0x01>;
+			};
+		};
+	};
+
+	set@0400 {
+		phandle = <0x68>;
+
+		freqboost {
+			top-app = <0x05 0x05>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x64>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+			dynamic-busy-ratio = <0x46 0x46>;
+		};
+
+		fclamp {
+			max-freq = <0x177000 0x1ec300>;
+			max-target-period = <0x04 0x04>;
+			max-target-ratio = <0x50 0x50>;
+
+			monitor-group {
+				top-app = <0x01>;
+				foreground = <0x01>;
+			};
+		};
+
+		cpufreq_gov {
+			htask-boost = <0x00 0x00>;
+		};
+	};
+
+	set@0401 {
+		phandle = <0x69>;
+
+		freqboost {
+			top-app = <0x1e 0x1e>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		tex {
+			top-app = <0x01>;
+			prio = <0x77>;
+		};
+	};
+
+	set@0402 {
+		phandle = <0x6a>;
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		tex {
+		};
+
+		gsc {
+			up_threshold = <0x00>;
+
+			monitor-group {
+				top-app = <0x01>;
+				foreground = <0x01>;
+			};
+		};
+	};
+
+	set@0500 {
+		phandle = <0x6b>;
+
+		freqboost {
+			foreground = <0x0a 0x0a>;
+			top-app = <0x0a 0x0a>;
+			camera-daemon = <0x0a 0x0a>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x64>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+			dynamic-busy-ratio = <0x46>;
+		};
+
+		fclamp {
+
+			monitor-group {
+				foreground = <0x01>;
+				top-app = <0x01>;
+				camera-daemon = <0x01>;
+			};
+		};
+
+		cpufreq_gov {
+			htask-boost = <0x96 0x96>;
+		};
+	};
+
+	set@0501 {
+		phandle = <0x6c>;
+
+		freqboost {
+			top-app = <0x0a 0x0a>;
+		};
+
+		frt {
+			active-ratio = <0x19 0x19>;
+		};
+
+		ecs {
+		};
+
+		tex {
+			top-app = <0x01>;
+			prio = <0x77>;
+		};
+	};
+
+	set@0502 {
+		phandle = <0x6d>;
+
+		freqboost {
+			foreground = <0x14 0x14>;
+			top-app = <0x14 0x14>;
+			camera-daemon = <0x14 0x14>;
+		};
+
+		fclamp {
+			min-freq = <0x183350 0x183350>;
+			min-target-period = <0x04 0x04>;
+			min-target-ratio = <0x14 0x14>;
+
+			monitor-group {
+				foreground = <0x01>;
+				top-app = <0x01>;
+				camera-daemon = <0x01>;
+			};
+		};
+
+		frt {
+			active-ratio = <0x19 0x05>;
+		};
+
+		ecs {
+		};
+
+		ecs_dynamic {
+		};
+
+		tex {
+			foreground = <0x01>;
+			top-app = <0x01>;
+			camera-daemon = <0x01>;
+			prio = <0x6e>;
+		};
+
+		ntu {
+			root = <0x00>;
+			foreground = <0x00>;
+			background = <0x00>;
+			top-app = <0x00>;
+			rt = <0x00>;
+			system = <0x00>;
+			system-background = <0x00>;
+			nnapi-hal = <0x00>;
+			camera-daemon = <0x00>;
+		};
+	};
+
+	ems {
+		compatible = "samsung,ems";
+		status = "okay";
+
+		pe-list {
+
+			list@0 {
+				cpus = "0-7";
+			};
+		};
+
+		cpu-selection-domain {
+
+			ananke0 {
+				cpus = "0-3";
+			};
+
+			ananke1 {
+				cpus = "4-7";
+			};
+		};
+
+		halo {
+
+			domain@0 {
+				cpus = "0-3";
+				expired-ratio = <0x64>;
+			};
+
+			domain@1 {
+				cpus = "4-7";
+				expired-ratio = <0x64>;
+			};
+		};
+
+		ego {
+			thread-run-on = "0-3";
+
+			domain@0 {
+				cpus = "0-3";
+				ratio = <0x3e8>;
+			};
+
+			domain@1 {
+				cpus = "4-7";
+				ratio = <0x3e8>;
+			};
+		};
+
+		ecs {
+			default-gov = <0x00>;
+
+			domain0 {
+				cpus = "0-3";
+
+				stage0 {
+					cpus = "0-1";
+				};
+
+				stage1 {
+					cpus = "0-3";
+				};
+			};
+
+			domain1 {
+				cpus = "4-7";
+
+				stage0 {
+					cpus = "4-5";
+					busy-threshold = <0x00>;
+				};
+
+				stage1 {
+					cpus = "4-7";
+				};
+			};
+		};
+
+		ecs_dynamic {
+			default-gov = <0x01>;
+
+			domain0 {
+				cpus = "0-3";
+				default-cpus = "0-3";
+			};
+
+			domain1 {
+				cpus = "4-7";
+				default-cpus = "4-5";
+			};
+		};
+
+		freq-variant {
+
+			domain@0 {
+				cpus = "0-3";
+				table = <0xc4c70 0x9c4 0x1a94b0 0x9c4>;
+			};
+
+			domain@1 {
+				cpus = "4-7";
+				table = <0xc4c70 0x9c4 0x1a94b0 0x9c4>;
+			};
+		};
+
+		emstune {
+			boost-level = <0x02>;
+			boot-set = <0x5b>;
+
+			mode0 {
+				desc = "normal";
+
+				level0 {
+					base = <0x5c>;
+					set = <0x5c>;
+				};
+
+				level1 {
+					base = <0x5c>;
+					set = <0x5d>;
+				};
+
+				level2 {
+					base = <0x5c>;
+					set = <0x5e>;
+				};
+			};
+
+			mode1 {
+				desc = "power-scenario";
+
+				level0 {
+					base = <0x5f>;
+					set = <0x5f>;
+				};
+
+				level1 {
+					base = <0x5f>;
+					set = <0x60>;
+				};
+
+				level2 {
+					base = <0x5f>;
+					set = <0x61>;
+				};
+			};
+
+			mode2 {
+				desc = "performance";
+
+				level0 {
+					base = <0x62>;
+					set = <0x62>;
+				};
+
+				level1 {
+					base = <0x62>;
+					set = <0x63>;
+				};
+
+				level2 {
+					base = <0x62>;
+					set = <0x64>;
+				};
+			};
+
+			mode3 {
+				desc = "game";
+
+				level0 {
+					base = <0x65>;
+					set = <0x65>;
+				};
+
+				level1 {
+					base = <0x65>;
+					set = <0x66>;
+				};
+
+				level2 {
+					base = <0x65>;
+					set = <0x67>;
+				};
+			};
+
+			mode4 {
+				desc = "balance";
+
+				level0 {
+					base = <0x68>;
+					set = <0x68>;
+				};
+
+				level1 {
+					base = <0x68>;
+					set = <0x69>;
+				};
+
+				level2 {
+					base = <0x68>;
+					set = <0x6a>;
+				};
+			};
+
+			mode5 {
+				desc = "camera";
+
+				level0 {
+					base = <0x6b>;
+					set = <0x6b>;
+				};
+
+				level1 {
+					base = <0x6b>;
+					set = <0x6c>;
+				};
+
+				level2 {
+					base = <0x6b>;
+					set = <0x6d>;
+				};
+			};
+		};
+	};
+
+	xperf {
+		compatible = "samsung,exynos-perf";
+		status = "ok";
+		cal-id-mif = <0xb040000>;
+		cal-id-g3d = <0xb040004>;
+		cal-id-cpucl0 = <0xb040002>;
+		cal-id-cpucl1 = <0xb040003>;
+		power-coeff = <0x178 0x178>;
+	};
