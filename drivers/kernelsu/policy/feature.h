@@ -1,17 +1,14 @@
 #ifndef __KSU_H_FEATURE
 #define __KSU_H_FEATURE
 
-#include <linux/types.h>
-#include "uapi/feature.h" // IWYU pragma: keep
-
 typedef int (*ksu_feature_get_t)(u64 *value);
 typedef int (*ksu_feature_set_t)(u64 value);
 
 struct ksu_feature_handler {
-	u32 feature_id;
-	const char *name;
-	ksu_feature_get_t get_handler;
-	ksu_feature_set_t set_handler;
+    u32 feature_id;
+    const char *name;
+    ksu_feature_get_t get_handler;
+    ksu_feature_set_t set_handler;
 };
 
 int ksu_register_feature_handler(const struct ksu_feature_handler *handler);
