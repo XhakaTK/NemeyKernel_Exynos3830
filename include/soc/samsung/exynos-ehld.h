@@ -22,6 +22,17 @@
 #define EHLD_STAT_LOCKUP_HW		(3)
 
 #if IS_ENABLED(CONFIG_EXYNOS_EHLD)
+/*
+ * Per-CPU trace ring written by the detector task. @pmpcsr holds the PMUPCSR
+ * read (instruction count), @event the raw PMU register, @time the CPU clock.
+ */
+struct exynos_ehld_data {
+	unsigned long long		time[NUM_TRACE];
+	unsigned long long		event[NUM_TRACE];
+	unsigned long long		pmpcsr[NUM_TRACE];
+	unsigned long			data_ptr;
+};
+
 extern void exynos_ehld_event_raw_update(int cpu);
 extern void exynos_ehld_event_raw_dump(int cpu);
 extern void exynos_ehld_event_raw_update_allcpu(void);
@@ -31,6 +42,7 @@ extern int exynos_ehld_start(void);
 extern void exynos_ehld_stop(void);
 extern void exynos_ehld_do_ipi(int cpu, unsigned int ipinr);
 extern void exynos_ehld_prepare_panic(void);
+extern struct exynos_ehld_data *ehld_get_ctrl_data(unsigned int cpu);
 #else
 #define exynos_ehld_event_raw_update(a)			do { } while (0)
 #define exynos_ehld_event_raw_dump(a)			do { } while (0)

@@ -61,13 +61,6 @@ struct exynos_ehld_main ehld_main = {
 	.lock = __RAW_SPIN_LOCK_UNLOCKED(ehld_main.lock),
 };
 
-struct exynos_ehld_data {
-	unsigned long long		time[NUM_TRACE];
-	unsigned long long		event[NUM_TRACE];
-	unsigned long long		pmpcsr[NUM_TRACE];
-	unsigned long			data_ptr;
-};
-
 struct exynos_ehld_ctrl {
 	struct task_struct		*task;
 	struct perf_event		*event;
@@ -155,6 +148,20 @@ unsigned long long exynos_ehld_event_read_cpu(int cpu)
 				__func__, cpu, enabled, running, total);
 	}
 	return total;
+}
+
+/*
+ * Returns NULL while the CPU is not being traced, so callers do not read a
+ * zeroed ring and mistake it for a stalled instruction counter.
+ */
+struct exynos_ehld_data *ehld_get_ctrl_data(unsigned int cpu)
+{
+	struct exynos_ehld_ctrl *ctrl = per_cpu_ptr(&ehld_ctrl, cpu);
+
+	if (!ctrl->event)
+		return NULL;
+
+	return &ctrl->data;
 }
 
 void exynos_ehld_event_raw_update_allcpu(void)
