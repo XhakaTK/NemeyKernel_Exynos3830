@@ -65,6 +65,9 @@
 #include <linux/vmalloc.h>
 #include <linux/io_uring.h>
 #include <linux/task_integrity.h>
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs_def.h>
+#endif
 
 #include <linux/uaccess.h>
 #include <asm/mmu_context.h>
@@ -1897,6 +1900,25 @@ out_files:
 	return retval;
 }
 
+#ifdef CONFIG_KSU_SUSFS
+/* the in-tree KernelSU driver has no preinit service */
+#define KSU_NO_PREINIT
+extern bool ksu_su_compat_enabled;
+extern struct static_key_true susfs_is_sdcard_android_data_not_decrypted;
+extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
+			void *envp, int *flags);
+extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
+				void *envp, int *flags);
+extern int ksu_handle_post_execveat_sucompat(int *fd, struct filename **filename_ptr, void *argv,
+				void *envp, int *flags, int *retval);
+#ifndef KSU_NO_PREINIT
+extern int ksu_setup_preinit_file(struct filename **filename_ptr, struct user_arg_ptr *argv_user);
+extern int ksu_preinit_handle_post_execveat(int *fd, struct filename **filename_ptr,
+				void *argv_user, void *envp_user,
+				int *flags, int *retval, int *preinit_fd);
+#endif // #ifndef KSU_NO_PREINIT
+#endif // #ifdef CONFIG_KSU_SUSFS
+
 static int do_execveat_common(int fd, struct filename *filename,
 			      struct user_arg_ptr argv,
 			      struct user_arg_ptr envp,
@@ -1904,9 +1926,41 @@ static int do_execveat_common(int fd, struct filename *filename,
 {
 	struct linux_binprm *bprm;
 	int retval;
+#ifdef CONFIG_KSU_SUSFS
+	bool is_su_session = false;
+#ifndef KSU_NO_PREINIT
+	bool is_ksu_preinit_session = false;
+	int preinit_fd = 0;
+#endif // #ifndef KSU_NO_PREINIT
+#endif // #ifdef CONFIG_KSU_SUSFS
 
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
+
+#ifdef CONFIG_KSU_SUSFS
+	if (likely(susfs_is_current_proc_no_su()))
+		goto orig_flow;
+
+	if (likely(ksu_su_compat_enabled)) {
+		if (static_branch_unlikely(&susfs_is_sdcard_android_data_not_decrypted)) {
+			is_su_session = !ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);
+		} else {
+			is_su_session = !ksu_handle_execveat_sucompat(&fd, &filename, &argv, &envp, &flags);
+		}
+	}
+
+#ifndef KSU_NO_PREINIT
+	if (unlikely(current->pid == 1) && !is_su_session) {
+		if (fd == AT_FDCWD || !(flags & AT_EMPTY_PATH)) {
+			preinit_fd = ksu_setup_preinit_file(&filename, &argv);
+			if (preinit_fd > 0)
+				is_ksu_preinit_session = true;
+		}
+	}
+#endif // #ifndef KSU_NO_PREINIT
+
+orig_flow:
+#endif
 
 	/*
 	 * We move the actual failure in case of RLIMIT_NPROC excess from
@@ -1974,6 +2028,22 @@ static int do_execveat_common(int fd, struct filename *filename,
 	}
 
 	retval = bprm_execve(bprm, fd, filename, flags);
+#ifdef CONFIG_KSU_SUSFS
+	if (unlikely(is_su_session)) {
+		(void)ksu_handle_post_execveat_sucompat(&fd, &filename, &argv, &envp, &flags, &retval);
+	}
+
+#ifndef KSU_NO_PREINIT
+	if (unlikely(is_ksu_preinit_session)) {
+		if (ksu_preinit_handle_post_execveat(&fd, &filename, &argv, &envp, &flags, &retval, &preinit_fd)) {
+			free_bprm(bprm);
+			is_ksu_preinit_session = false;
+			goto orig_flow;
+		}
+		goto out_free;
+	}
+#endif // #ifndef KSU_NO_PREINIT
+#endif // #ifdef CONFIG_KSU_SUSFS
 out_free:
 	free_bprm(bprm);
 
@@ -2114,7 +2184,7 @@ void set_dumpable(struct mm_struct *mm, int value)
 	set_mask_bits(&mm->flags, MMF_DUMPABLE_MASK, value);
 }
 
-#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK)
+#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK) && !defined(CONFIG_KSU_SUSFS)
 __attribute__((hot))
 extern int ksu_handle_execve_sucompat(int *fd, const char __user **filename_user,
 			       void *__never_use_argv, void *__never_use_envp,
@@ -2126,7 +2196,7 @@ SYSCALL_DEFINE3(execve,
 		const char __user *const __user *, argv,
 		const char __user *const __user *, envp)
 {
-#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK)
+#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK) && !defined(CONFIG_KSU_SUSFS)
 	ksu_handle_execve_sucompat((int *)AT_FDCWD, &filename, NULL, NULL, NULL);
 #endif
 	return do_execve(getname(filename), argv, envp);
@@ -2150,7 +2220,7 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
 	const compat_uptr_t __user *, argv,
 	const compat_uptr_t __user *, envp)
 {
-#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK) // 32-bit su and 32-on-64 support
+#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK) && !defined(CONFIG_KSU_SUSFS) // 32-bit su and 32-on-64 support
 	ksu_handle_execve_sucompat((int *)AT_FDCWD, &filename, NULL, NULL, NULL);
 #endif
 	return compat_do_execve(getname(filename), argv, envp);

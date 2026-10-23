@@ -42,6 +42,14 @@
 #include "objsec.h"
 #include "conditional.h"
 
+#ifdef CONFIG_KSU_SUSFS
+extern struct page *fake_status;
+extern struct static_key_false fake_status_initialize_key;
+extern bool ksu_selinux_hide_running __read_mostly;
+extern bool ksu_selinux_hide_enabled __read_mostly;
+extern void initialize_fake_status(void);
+#endif // #ifdef CONFIG_KSU_SUSFS
+
 enum sel_inos {
 	SEL_ROOT_INO = 2,
 	SEL_LOAD,	/* load policy */
@@ -226,12 +234,31 @@ static int sel_open_handle_status(struct inode *inode, struct file *filp)
 {
 	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
 	struct page    *status = selinux_kernel_status_page(fsi->state);
+#ifdef CONFIG_KSU_SUSFS
+	void *data;
+
+	if (likely(current_uid().val >= 10000 && ksu_selinux_hide_running)) {
+		mutex_lock(&selinux_state.status_lock);
+		data = fake_status;
+		mutex_unlock(&selinux_state.status_lock);
+		if (data) {
+			filp->private_data = data;
+			return 0;
+		}
+	}
+#endif // #ifdef CONFIG_KSU_SUSFS
 
 	if (!status)
 		return -ENOMEM;
 
 	filp->private_data = status;
 
+#ifdef CONFIG_KSU_SUSFS
+	if (static_branch_unlikely(&fake_status_initialize_key)) {
+		if (!fake_status)
+			initialize_fake_status();
+	}
+#endif // #ifdef CONFIG_KSU_SUSFS
 	return 0;
 }
 
