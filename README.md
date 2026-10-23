@@ -1,6 +1,6 @@
 # NemeyKernel — Exynos 850 (A12s / M12)
 
-Kernel Linux 5.10.236 para Samsung Galaxy A12s (SM-A127F) e Galaxy M12 (SM-M127F), baseado no Exynos 850 (s5e3830).
+Kernel Linux 5.10.271 para Samsung Galaxy A12s (SM-A127F) e Galaxy M12 (SM-M127F), baseado no Exynos 850 (s5e3830).
 
 ## Requisitos
 
