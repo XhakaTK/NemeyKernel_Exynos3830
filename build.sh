@@ -30,12 +30,10 @@ else
 	echo "   NemeyKernel - Exynos 850"
 	echo "=============================="
 	echo "  1) A12s (exynos850-a12s_defconfig)"
-	echo "  2) M12  (exynos850-m12_defconfig)"
 	echo
 	read -r -p "Escolha o dispositivo [1]: " OPT
 	case "${OPT:-1}" in
 		1) DEFCONFIG=exynos850-a12s_defconfig ;;
-		2) DEFCONFIG=exynos850-m12_defconfig ;;
 		*) echo "Opcao invalida: $OPT" >&2; exit 1 ;;
 	esac
 	echo
