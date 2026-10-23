@@ -230,6 +230,12 @@ out_drop:
     ksu_event_queue_drop(&sulog_queue);
     return NULL;
 }
+
+static inline struct user_arg_ptr *user_arg_null_ptr(void)
+{
+    static struct user_arg_ptr null_arg = { 0 };
+    return &null_arg;
+}
 #else
 static __u32 ksu_sulog_flatten_argv(struct user_arg_ptr argv, char *dst, __u32 dst_len)
 {
@@ -359,13 +365,13 @@ out_drop:
     ksu_event_queue_drop(&sulog_queue);
     return NULL;
 }
-#endif
 
-static inline struct user_arg_ptr *user_arg_null_ptr(void)
+static inline struct user_arg_ptr user_arg_null_ptr(void)
 {
-    static struct user_arg_ptr null_arg = { 0 };
-    return &null_arg;
+    struct user_arg_ptr null_arg = { 0 };
+    return null_arg;
 }
+#endif
 
 static struct ksu_sulog_pending_event *ksu_sulog_capture_grant_root(const struct ksu_sulog_identity *identity,
                                                                     gfp_t gfp)
