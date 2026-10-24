@@ -1,0 +1,89 @@
+name: Build Kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: 'Branch do kernel'
+        default: 'A127X-LTS'
+        required: true
+      DEVICE_TARGET:
+        description: 'Alvo (defconfig = exynos850-<alvo>_defconfig)'
+        default: 'a12s'
+        required: true
+      UPDATE_TOOLCHAIN:
+        description: 'Refazer o download do pronton-toolchains'
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-kernel-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEVICE_TARGET: ${{ inputs.DEVICE_TARGET }}
+  DEFCONFIG: exynos850-${{ inputs.DEVICE_TARGET }}_defconfig
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.BRANCH }}
+          # submodules: false de proposito; o gitlink do pai esta atrasado e o
+          # .gitmodules cita a branch 'master', que nao existe no remoto.
+          fetch-depth: 1
+          submodules: false
+
+      - name: Build id
+        id: build
+        run: |
+          tc_sha=$(git ls-remote https://github.com/XhakaTK/pronton-toolchains.git A12-Port | cut -f1)
+          echo "tc_sha=$tc_sha" >> "$GITHUB_OUTPUT"
+          echo "details=$(cat codename)-${DEVICE_TARGET}-$(date +%Y%m%d)_$(git rev-parse --short HEAD)-NIGHTLY" >> "$GITHUB_OUTPUT"
+
+      - name: Cache clang toolchain
+        id: cache-tc
+        uses: actions/cache@v5
+        with:
+          path: pronton-toolchains
+          key: pronton-toolchains-${{ steps.build.outputs.tc_sha }}${{ inputs.UPDATE_TOOLCHAIN && '-refresh' || '' }}
+
+      - name: Prepare dependencies
+        run: chmod +x ./build.sh && bash ./build.sh --setup-deps
+
+      - name: Fetch toolchains
+        if: steps.cache-tc.outputs.cache-hit != 'true' || inputs.UPDATE_TOOLCHAIN
+        env:
+          UPDATE_TOOLCHAINS: ${{ inputs.UPDATE_TOOLCHAIN }}
+        run: bash ./build.sh --fetch-toolchains
+
+      - name: Build kernel
+        env:
+          CI_ZIPNAME: ${{ steps.build.outputs.details }}.zip
+        run: bash ./build.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: Kernel-${{ steps.build.outputs.details }}
+          path: |
+            out/arch/arm64/boot/*
+            out/.config
+            out/System.map
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload flashable zip
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ steps.build.outputs.details }}-anykernel3
+          path: ${{ steps.build.outputs.details }}.zip
+          if-no-files-found: error
+          retention-days: 30

@@ -1,1 +1,5 @@
 /KernelSU-Next/
+
+# saida do build.sh (artefatos e zip flashavel)
+/out/
+/*.zip
