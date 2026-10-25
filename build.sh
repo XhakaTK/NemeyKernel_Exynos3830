@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# Build + empacotamento do NemeyKernel (Exynos 850 / a12s).
+# Build do NemeyKernel (Exynos 850 / a12s).
 # O CI nao faz nada sozinho: chama este script, que carrega dependencia,
-# toolchain, compila e gera o zip flashavel.
+# toolchain, compila e despeja os artefatos em out/.
 
 set -e
 
@@ -12,7 +12,6 @@ OUT_DIR="$ROOT_DIR/out"
 TC_DIR="$ROOT_DIR/pronton-toolchains"
 CLANG_DIR="$TC_DIR/clang/host/linux-x86/clang-r416183b"
 TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
-ANYKERNEL_DIR="$ROOT_DIR/external/anykernel3"
 
 DEVICE_TARGET=${DEVICE_TARGET:-"a12s"}
 DEFCONFIG=${DEFCONFIG:-"exynos850-${DEVICE_TARGET}_defconfig"}
@@ -35,7 +34,7 @@ error() {
 setup_deps() {
     local deps=(
         aptitude bc bison ccache cpio curl flex git kmod libelf-dev
-        libssl-dev lz4 perl python-is-python3 python3 tar wget zip zlib1g-dev
+        libssl-dev lz4 perl python-is-python3 python3 tar wget zlib1g-dev
         gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
         gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
     )
@@ -145,7 +144,6 @@ fi
 
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "untracked")
 BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
-[ -z "$CI_ZIPNAME" ] && ZIPNAME="${BUILD_DETAILS}.zip" || ZIPNAME=$CI_ZIPNAME
 
 msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs..."
 mkdir -p "$OUT_DIR/arch/arm64/boot"
@@ -157,23 +155,15 @@ make $MAKE_ARGS dtbs dtb.img dtbo.img
 
 [ -f arch/arm64/boot/Image ] || error "Compilacao falhou! Image nao encontrado."
 
-msg "Kernel compilada! Empacotando..."
+msg "Kernel compilada! Coletando artefatos..."
 cp arch/arm64/boot/Image arch/arm64/boot/Image.gz \
     arch/arm64/boot/dtb.img arch/arm64/boot/dtbo.img "$OUT_DIR/arch/arm64/boot/"
 cp System.map "$OUT_DIR/"
 cp .config "$OUT_DIR/.config"
 
-[ -d "$ANYKERNEL_DIR" ] || error "AnyKernel3 nao esta em $ANYKERNEL_DIR"
+for f in Image Image.gz dtb.img dtbo.img; do
+    printf '%-10s %12s bytes\n' "$f" "$(stat -c %s "$OUT_DIR/arch/arm64/boot/$f")"
+done
 
-rm -f "$ANYKERNEL_DIR/Image"* "$ROOT_DIR/$ZIPNAME"
-cp arch/arm64/boot/Image "$ANYKERNEL_DIR/"
-
-pushd "$ANYKERNEL_DIR" >/dev/null
-zip -r9q "$ROOT_DIR/$ZIPNAME" ./*
-popd >/dev/null
-
-MD5_CHECK=$(md5sum "$ROOT_DIR/$ZIPNAME" | cut -d' ' -f1)
-
-echo -e "\n${green}Build concluido em $((SECONDS / 60)) minuto(s)!${reset}"
-msg "Zip flashavel: $ZIPNAME (md5 $MD5_CHECK)"
-msg "Artefatos:     $OUT_DIR/arch/arm64/boot"
+echo -e "\n${green}Build $BUILD_DETAILS concluido em $((SECONDS / 60)) minuto(s)!${reset}"
+msg "Artefatos: $OUT_DIR/arch/arm64/boot"
