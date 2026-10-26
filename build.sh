@@ -110,17 +110,23 @@ apply_variant() {
     fi
 }
 
-# mold so existe no PATH quando o CI roda o setup-mold; na maquina local fica
-# o lld que ja vem com o clang.
-if command -v ld.mold >/dev/null 2>&1 || [ -x "$CLANG_DIR/bin/ld.mold" ]; then
-    LD_TOOL=ld.mold
-else
-    LD_TOOL=ld.lld
+export PATH="$CLANG_DIR/bin:$TOOLS_DIR:$PATH"
+
+# mold nao le linker script de kernel: o "man mold" diz que ele implementa só o
+# minimo de SECTIONS/INPUT que o libc.so precisa, e o primeiro link do build
+# aborta com "unknown linker script token". Ele entra entao no link das
+# ferramentas de build, que passam pelo driver do clang; o kernel fica no lld.
+HOST_LD=ld.lld
+HOST_LD_FLAGS=
+if command -v ld.mold >/dev/null 2>&1; then
+    HOST_LD=ld.mold
+    HOST_LD_FLAGS=-fuse-ld=mold
 fi
 
-MAKE_ARGS="ARCH=arm64 CC=clang LD=$LD_TOOL AR=llvm-ar NM=llvm-nm \
+MAKE_ARGS="ARCH=arm64 CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm \
 OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip \
-HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=$LD_TOOL \
+HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=$HOST_LD \
+HOSTLDFLAGS=$HOST_LD_FLAGS \
 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
 CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1"
 
@@ -153,14 +159,13 @@ esac
 # --- Ambiente de build ---
 export KBUILD_BUILD_USER="NemeyKernel"
 export KBUILD_BUILD_HOST="nemey-lab"
-export PATH="$CLANG_DIR/bin:$TOOLS_DIR:$PATH"
 export ARCH=arm64
 export SUBARCH=arm64
 export TARGET_SOC=s5e3830
 export PLATFORM_VERSION=13
 export ANDROID_MAJOR_VERSION=t
 export CC=clang
-export LD=$LD_TOOL
+export LD=ld.lld
 export LLVM=1
 export LLVM_IAS=1
 export CROSS_COMPILE=aarch64-linux-gnu-
@@ -202,7 +207,7 @@ XY_TAG=${XY_TAG:-$(git describe --tags --abbrev=0 2>/dev/null || echo "$COMMIT_H
 BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
 PKG_NAME="${CODENAME}@${DEVICE_TARGET}-${XY_TAG}${VARIANT_SLUG}"
 
-msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs (LD=$LD_TOOL, variante $VARIANT_SLUG)..."
+msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs (kernel: ld.lld, tools: $HOST_LD, variante $VARIANT_SLUG)..."
 mkdir -p "$OUT_DIR/arch/arm64/boot" "$PKG_DIR"
 
 make $MAKE_ARGS "$DEFCONFIG"
