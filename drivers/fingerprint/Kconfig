@@ -1,5 +1,5 @@
 #
-# Fingerprint sensor drivers (portado da base 4.19 Samsung/rsuntk)
+# Fingerprint sensor drivers (portado da base 4.19 da Samsung)
 #
 menuconfig SENSORS_FINGERPRINT
 	tristate "Finger Print Sensor devices"
