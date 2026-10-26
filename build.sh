@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# Build + empacotamento do NemeyKernel (Exynos 850 / a12s).
-# O CI nao faz nada sozinho: chama kernel_build/builda12s.sh, que repassa para
-# este script. Ele carrega dependencia, toolchain, compila, gera os .br e fecha
-# o tar e o zip em kernel_build/.
+# Build + empacotamento do NemeyKernel (Exynos 850 / a12s): ponto de entrada
+# unico. Carrega dependencia e toolchain, compila, gera os .br e fecha o tar e
+# o zip em kernel_build/. O comportamento sai de variaveis de ambiente:
+# VARIANT (e|p), DEFCONFIG, JOBS, CLANG_DIR, BOOT_IMG, BOOTLOADER_PREFIX,
+# XY_TAG e DEVICE_TARGET.
 
 set -e
 
@@ -13,8 +14,8 @@ OUT_DIR="$ROOT_DIR/out"
 TC_DIR="$ROOT_DIR/pronton-toolchains"
 PKG_DIR="$ROOT_DIR/kernel_build"
 PKG_STAGE="$OUT_DIR/pkg"
-# O CI poe o clang do lado de fora da arvore (../clang-r450784d);
-# na estacao de trabalho ele nao existe e cai no pronton-toolchains.
+# Um clang posto ao lado da arvore (../clang-r450784d) tem prioridade; sem
+# ele, cai no pronton-toolchains.
 PARENT_CLANG="$(dirname "$ROOT_DIR")/clang-r450784d"
 TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
 [ -n "$CLANG_DIR" ] || {
@@ -61,7 +62,8 @@ setup_deps() {
 
 # --- Toolchain (pronton-toolchains, branch A12-Port) ---
 # O gitlink do pai esta atrasado e o .gitmodules cita uma branch que nao
-# existe no remoto, entao o CI nunca usa 'submodule update': clona a tip.
+# existe no remoto, entao o --fetch-toolchains clona a tip em vez de rodar
+# 'submodule update'.
 _setup_toolchain() {
     msg "Clonando pronton-toolchains (A12-Port)..."
     rm -rf "$TC_DIR"
@@ -94,8 +96,8 @@ regen_defconfig() {
 }
 
 # --- Variante do selinux ---
-# Mexe no defconfig salvo do trabalho: no CI isso e descartavel, na estacao de
-# trabalho deixe o defconfig limpo depois de construir uma variante.
+# Mexe no defconfig salvo do trabalho: deixe o arquivo limpo depois de
+# construir uma variante (git checkout -- arch/arm64/configs/<defconfig>).
 apply_variant() {
     local conf="arch/arm64/configs/$DEFCONFIG" permissive=y
     case "$VARIANT" in
@@ -173,7 +175,8 @@ export CLANG_TRIPLE=aarch64-linux-gnu-
 export KCFLAGS=-w
 export CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
-# Menu local: o CI sempre passa DEFCONFIG pelo ambiente, entao nunca cai aqui.
+# Menu local: quem passa DEFCONFIG pelo ambiente ou o alvo na linha de comando
+# nunca cai aqui.
 if [ -z "$1" ] && [ -t 0 ]; then
     echo
     echo "=============================="
@@ -201,8 +204,8 @@ if [ -f "$BOOT_IMG_SRC" ]; then
 fi
 
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "untracked")
-# No CI a tag vem do 'git describe' do workflow; sem tag nenhuma, o pacote usa
-# o sha curto.
+# A tag vem do 'git describe'; sem tag nenhuma, o nome do pacote usa o sha
+# curto. XY_TAG no ambiente sobrescreve.
 XY_TAG=${XY_TAG:-$(git describe --tags --abbrev=0 2>/dev/null || echo "$COMMIT_HASH")}
 BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
 PKG_NAME="${CODENAME}@${DEVICE_TARGET}-${XY_TAG}${VARIANT_SLUG}"
@@ -212,7 +215,7 @@ mkdir -p "$OUT_DIR/arch/arm64/boot" "$PKG_DIR"
 
 make $MAKE_ARGS "$DEFCONFIG"
 make $MAKE_ARGS -j"$JOBS"
-# dtb.img/dtbo.img nao sao alvo de 'all', mas o workflow de flash precisa deles
+# dtb.img/dtbo.img nao sao alvo de 'all', mas o empacotamento .br depende deles
 make $MAKE_ARGS dtbs dtb.img dtbo.img
 
 [ -f arch/arm64/boot/Image ] || error "Compilacao falhou! Image nao encontrado."
