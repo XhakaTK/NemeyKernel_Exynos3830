@@ -1,5 +1,7 @@
 /KernelSU-Next/
 
-# saida do build.sh (artefatos e zip flashavel)
+# saida do build.sh (artefatos e pacotes .br/tar/zip)
 /out/
 /*.zip
+/kernel_build/Nemey@*
+/kernel_build/base/

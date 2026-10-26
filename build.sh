@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# Build do NemeyKernel (Exynos 850 / a12s).
-# O CI nao faz nada sozinho: chama este script, que carrega dependencia,
-# toolchain, compila e despeja os artefatos em out/.
+# Build + empacotamento do NemeyKernel (Exynos 850 / a12s).
+# O CI nao faz nada sozinho: chama kernel_build/builda12s.sh, que repassa para
+# este script. Ele carrega dependencia, toolchain, compila, gera os .br e fecha
+# o tar e o zip em kernel_build/.
 
 set -e
 
@@ -10,13 +11,28 @@ SECONDS=0
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="$ROOT_DIR/out"
 TC_DIR="$ROOT_DIR/pronton-toolchains"
-CLANG_DIR="$TC_DIR/clang/host/linux-x86/clang-r416183b"
+PKG_DIR="$ROOT_DIR/kernel_build"
+PKG_STAGE="$OUT_DIR/pkg"
+# O CI poe o clang do lado de fora da arvore (../clang-r450784d);
+# na estacao de trabalho ele nao existe e cai no pronton-toolchains.
+PARENT_CLANG="$(dirname "$ROOT_DIR")/clang-r450784d"
 TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
+[ -n "$CLANG_DIR" ] || {
+    if [ -x "$PARENT_CLANG/bin/clang" ]; then
+        CLANG_DIR=$PARENT_CLANG
+    else
+        CLANG_DIR="$TC_DIR/clang/host/linux-x86/clang-r416183b"
+    fi
+}
 
 DEVICE_TARGET=${DEVICE_TARGET:-"a12s"}
 DEFCONFIG=${DEFCONFIG:-"exynos850-${DEVICE_TARGET}_defconfig"}
 JOBS=${JOBS:-$(nproc --all)}
 CODENAME=$(cat "$ROOT_DIR/codename" 2>/dev/null || echo "Nemey")
+# e = selinux enforcing, p = permissive (o defconfig salvo ja vem permissive).
+VARIANT=${VARIANT:-"p"}
+# Prefixo de ro.boot.bootloader usado pelo flasher para aceitar o pacote.
+BOOTLOADER_PREFIX=${BOOTLOADER_PREFIX:-"A127F"}
 
 export TERM=xterm
 red='\033[0;31m'
@@ -33,8 +49,9 @@ error() {
 # --- Dependencias do host ---
 setup_deps() {
     local deps=(
-        aptitude bc bison ccache cpio curl flex git kmod libelf-dev
-        libssl-dev lz4 perl python-is-python3 python3 tar wget zlib1g-dev
+        aptitude bc bison brotli ccache cpio curl flex git kmod libelf-dev
+        libssl-dev lz4 perl python-is-python3 python3 tar unzip wget
+        zlib1g-dev zip zstd
         gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
         gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
     )
@@ -76,9 +93,34 @@ regen_defconfig() {
     msg "defconfig gerado em $(pwd)/defconfig (compare com arch/arm64/configs/${DEFCONFIG})"
 }
 
-MAKE_ARGS="ARCH=arm64 CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm \
+# --- Variante do selinux ---
+# Mexe no defconfig salvo do trabalho: no CI isso e descartavel, na estacao de
+# trabalho deixe o defconfig limpo depois de construir uma variante.
+apply_variant() {
+    local conf="arch/arm64/configs/$DEFCONFIG" permissive=y
+    case "$VARIANT" in
+        e|enforcing) VARIANT_SLUG=en; permissive=n ;;
+        p|permissive) VARIANT_SLUG=per ;;
+        *) error "VARIANT invalido: $VARIANT (use e ou p)" ;;
+    esac
+    if [ "$permissive" = y ]; then
+        "$ROOT_DIR/scripts/config" --file "$conf" -e SECURITY_SELINUX_ALWAYS_PERMISSIVE
+    else
+        "$ROOT_DIR/scripts/config" --file "$conf" -d SECURITY_SELINUX_ALWAYS_PERMISSIVE
+    fi
+}
+
+# mold so existe no PATH quando o CI roda o setup-mold; na maquina local fica
+# o lld que ja vem com o clang.
+if command -v ld.mold >/dev/null 2>&1 || [ -x "$CLANG_DIR/bin/ld.mold" ]; then
+    LD_TOOL=ld.mold
+else
+    LD_TOOL=ld.lld
+fi
+
+MAKE_ARGS="ARCH=arm64 CC=clang LD=$LD_TOOL AR=llvm-ar NM=llvm-nm \
 OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip \
-HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=ld.lld \
+HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=$LD_TOOL \
 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
 CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1"
 
@@ -118,7 +160,7 @@ export TARGET_SOC=s5e3830
 export PLATFORM_VERSION=13
 export ANDROID_MAJOR_VERSION=t
 export CC=clang
-export LD=lld
+export LD=$LD_TOOL
 export LLVM=1
 export LLVM_IAS=1
 export CROSS_COMPILE=aarch64-linux-gnu-
@@ -142,11 +184,26 @@ if [ -z "$1" ] && [ -t 0 ]; then
     DEFCONFIG="exynos850-${DEVICE_TARGET}_defconfig"
 fi
 
-COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "untracked")
-BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
+apply_variant
 
-msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs..."
-mkdir -p "$OUT_DIR/arch/arm64/boot"
+# boot.br so faz sentido a partir de um boot.img inteiro (ramdisk + dtb do
+# aparelho): a arvore nao tem alvo boot.img, entao a base vem por BOOT_IMG.
+# Checa aqui para nao queimar duas horas de build em cima de um caminho errado.
+BOOT_IMG_SRC=${BOOT_IMG:-"$PKG_DIR/base/boot.img"}
+if [ -f "$BOOT_IMG_SRC" ]; then
+    [ "$(head -c 8 "$BOOT_IMG_SRC")" = "ANDROID!" ] ||
+        error "$BOOT_IMG_SRC nao e um boot.img (cabecalho sem ANDROID!)."
+fi
+
+COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "untracked")
+# No CI a tag vem do 'git describe' do workflow; sem tag nenhuma, o pacote usa
+# o sha curto.
+XY_TAG=${XY_TAG:-$(git describe --tags --abbrev=0 2>/dev/null || echo "$COMMIT_HASH")}
+BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
+PKG_NAME="${CODENAME}@${DEVICE_TARGET}-${XY_TAG}${VARIANT_SLUG}"
+
+msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs (LD=$LD_TOOL, variante $VARIANT_SLUG)..."
+mkdir -p "$OUT_DIR/arch/arm64/boot" "$PKG_DIR"
 
 make $MAKE_ARGS "$DEFCONFIG"
 make $MAKE_ARGS -j"$JOBS"
@@ -161,9 +218,44 @@ cp arch/arm64/boot/Image arch/arm64/boot/Image.gz \
 cp System.map "$OUT_DIR/"
 cp .config "$OUT_DIR/.config"
 
+# --- Empacotamento: .br + tar + zip ---
+# Os .br vao na raiz e o manifest do flasher em META-INF/com/google/android/,
+# que e o leiaute que as linhas "flash_compressed" abaixo esperam.
+SFF_DIR="$PKG_STAGE/META-INF/com/google/android"
+rm -rf "$PKG_STAGE"
+mkdir -p "$SFF_DIR"
+brotli -q 11 -f -o "$PKG_STAGE/dtbo.br" arch/arm64/boot/dtbo.img
+
+# boot.br so sai do boot.img inteiro validado antes do build.
+BOOT_COMMENT="# "
+if [ -f "$BOOT_IMG_SRC" ]; then
+    brotli -q 11 -f -o "$PKG_STAGE/boot.br" "$BOOT_IMG_SRC"
+    BOOT_COMMENT=""
+else
+    msg "Sem boot.img em $BOOT_IMG_SRC: pacote sem boot.br."
+fi
+
+sed -e "s|@BOOTLOADER_PREFIX@|$BOOTLOADER_PREFIX|" \
+    -e "s|@BOOT@|$BOOT_COMMENT|" \
+    "$PKG_DIR/update-commands.template" > "$SFF_DIR/update-commands"
+
+members=()
+if [ -f "$PKG_STAGE/boot.br" ]; then members+=(boot.br); fi
+members+=(dtbo.br META-INF/com/google/android/update-commands)
+
+rm -f "$PKG_DIR/$PKG_NAME.tar" "$PKG_DIR/$PKG_NAME.zip"
+tar -cf "$PKG_DIR/$PKG_NAME.tar" -C "$PKG_STAGE" "${members[@]}" \
+    -C "$OUT_DIR/arch/arm64/boot" Image Image.gz dtb.img dtbo.img \
+    -C "$OUT_DIR" System.map .config
+(cd "$PKG_STAGE" && zip -r9q "$PKG_DIR/$PKG_NAME.zip" "${members[@]}")
+
 for f in Image Image.gz dtb.img dtbo.img; do
     printf '%-10s %12s bytes\n' "$f" "$(stat -c %s "$OUT_DIR/arch/arm64/boot/$f")"
+done
+for f in "$PKG_DIR/$PKG_NAME.tar" "$PKG_DIR/$PKG_NAME.zip"; do
+    printf '%-10s %12s bytes\n' "$(basename "$f")" "$(stat -c %s "$f")"
 done
 
 echo -e "\n${green}Build $BUILD_DETAILS concluido em $((SECONDS / 60)) minuto(s)!${reset}"
 msg "Artefatos: $OUT_DIR/arch/arm64/boot"
+msg "Pacotes:   $PKG_DIR/$PKG_NAME.{tar,zip}"
