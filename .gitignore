@@ -3,5 +3,5 @@
 # saida do build.sh (artefatos e pacotes .br/tar/zip)
 /out/
 /*.zip
-/kernel_build/Nemey@*
+/kernel_build/PegasusKernel@*
 /kernel_build/base/

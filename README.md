@@ -1,4 +1,4 @@
-# NemeyKernel — Exynos 850 (A12s)
+# PegasusKernel — Exynos 850 (A12s)
 
 Kernel Linux 5.10.271 para Samsung Galaxy A12s (SM-A127F), baseado no Exynos 850 (s5e3830).
 
@@ -13,8 +13,8 @@ Kernel Linux 5.10.271 para Samsung Galaxy A12s (SM-A127F), baseado no Exynos 850
 Clone o repositório com o submódulo da toolchain:
 
 ```bash
-git clone https://github.com/XhakaTK/NemeyKernel_Exynos3830.git
-cd NemeyKernel_Exynos3830
+git clone https://github.com/XhakaTK/PegasusKernel_Exynos3830.git
+cd PegasusKernel_Exynos3830
 git submodule update --init
 ```
 
@@ -28,7 +28,7 @@ Ele mostra o menu para escolher o dispositivo:
 
 ```
 ==============================
-   NemeyKernel - Exynos 850
+   PegasusKernel - Exynos 850
 ==============================
   1) A12s (exynos850-a12s_defconfig)
 

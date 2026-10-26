@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Build + empacotamento do NemeyKernel (Exynos 850 / a12s): ponto de entrada
+# Build + empacotamento do PegasusKernel (Exynos 850 / a12s): ponto de entrada
 # unico. Carrega dependencia e toolchain, compila, gera os .br e fecha o tar e
 # o zip em kernel_build/. O comportamento sai de variaveis de ambiente:
 # VARIANT (e|p), DEFCONFIG, JOBS, CLANG_DIR, BOOT_IMG, BOOTLOADER_PREFIX,
@@ -29,7 +29,7 @@ TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
 DEVICE_TARGET=${DEVICE_TARGET:-"a12s"}
 DEFCONFIG=${DEFCONFIG:-"exynos850-${DEVICE_TARGET}_defconfig"}
 JOBS=${JOBS:-$(nproc --all)}
-CODENAME=$(cat "$ROOT_DIR/codename" 2>/dev/null || echo "Nemey")
+CODENAME=$(cat "$ROOT_DIR/codename" 2>/dev/null || echo "PegasusKernel")
 # e = selinux enforcing, p = permissive (o defconfig salvo ja vem permissive).
 VARIANT=${VARIANT:-"p"}
 # Prefixo de ro.boot.bootloader usado pelo flasher para aceitar o pacote.
@@ -159,8 +159,8 @@ case "$1" in
 esac
 
 # --- Ambiente de build ---
-export KBUILD_BUILD_USER="NemeyKernel"
-export KBUILD_BUILD_HOST="nemey-lab"
+export KBUILD_BUILD_USER="PegasusKernel"
+export KBUILD_BUILD_HOST="pegasus-lab"
 export ARCH=arm64
 export SUBARCH=arm64
 export TARGET_SOC=s5e3830
