@@ -5,18 +5,22 @@ Kernel Linux 5.10.271 para Samsung Galaxy A12s (SM-A127F), baseado no Exynos 850
 ## Requisitos
 
 - Linux x86_64
-- Toolchain do submódulo `pronton-toolchains` (clang r416183b)
+- Toolchain do repo [`XhakaTK/toolchains`](https://github.com/XhakaTK/toolchains) (clang r614150, LLVM 23.0.1), baixada em `toolchains/`
 - Dependências de host: `bison`, `flex`, `bc` e OpenSSL (o `extract-cert` já suporta OpenSSL 3 e 4)
 
 ## Compilando
 
-Clone o repositório com o submódulo da toolchain:
+Clone o repositório e busque a toolchain:
 
 ```bash
 git clone https://github.com/XhakaTK/PegasusKernel_Exynos3830.git
 cd PegasusKernel_Exynos3830
-git submodule update --init
+bash build.sh --fetch-toolchains
 ```
+
+O `toolchains/` não é mais submódulo: o clang tem ~3,8 GB e arquivos acima de
+100 MB, que o git do GitHub recusa, então ele é distribuído como asset de
+Release e o `build.sh` baixa e extrai localmente.
 
 Rode o script de build:
 

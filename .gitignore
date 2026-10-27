@@ -5,3 +5,6 @@
 /*.zip
 /kernel_build/PegasusKernel@*
 /kernel_build/base/
+
+# Toolchain (clonada/extraida pelo build.sh; nunca versionar)
+/toolchains/

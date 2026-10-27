@@ -11,18 +11,18 @@ set -e
 SECONDS=0
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="$ROOT_DIR/out"
-TC_DIR="$ROOT_DIR/pronton-toolchains"
+TC_DIR="$ROOT_DIR/toolchains"
 PKG_DIR="$ROOT_DIR/kernel_build"
 PKG_STAGE="$OUT_DIR/pkg"
-# Um clang posto ao lado da arvore (../clang-r450784d) tem prioridade; sem
-# ele, cai no pronton-toolchains.
-PARENT_CLANG="$(dirname "$ROOT_DIR")/clang-r450784d"
+# Um clang posto ao lado da arvore (../clang-r614150) tem prioridade; sem
+# ele, cai no toolchains/ (repo XhakaTK/toolchains).
+PARENT_CLANG="$(dirname "$ROOT_DIR")/clang-r614150"
 TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
 [ -n "$CLANG_DIR" ] || {
     if [ -x "$PARENT_CLANG/bin/clang" ]; then
         CLANG_DIR=$PARENT_CLANG
     else
-        CLANG_DIR="$TC_DIR/clang/host/linux-x86/clang-r416183b"
+        CLANG_DIR="$TC_DIR/clang/host/linux-x86/clang-r614150"
     fi
 }
 
@@ -60,16 +60,25 @@ setup_deps() {
     sudo apt install "${deps[@]}" -y
 }
 
-# --- Toolchain (pronton-toolchains, branch A12-Port) ---
-# O gitlink do pai esta atrasado e o .gitmodules cita uma branch que nao
-# existe no remoto, entao o --fetch-toolchains clona a tip em vez de rodar
-# 'submodule update'.
+# --- Toolchain (repo XhakaTK/toolchains; o clang vem do GitHub Release) ---
+# toolchains/ nao e mais submodulo: o repo e leve (README + fetch-clang.sh)
+# porque o GitHub recusa arquivos >100 MB, e o clang (~3,8 GB) vive como
+# asset de Release. --fetch-toolchains clona o repo e baixa o clang.
 _setup_toolchain() {
-    msg "Clonando pronton-toolchains (A12-Port)..."
+    msg "Clonando toolchains (main)..."
     rm -rf "$TC_DIR"
-    git clone --depth 1 --single-branch -b A12-Port \
-        https://github.com/XhakaTK/pronton-toolchains.git "$TC_DIR" \
-        || error "Falha ao clonar o toolchain."
+    git clone --depth 1 --single-branch -b main \
+        https://github.com/XhakaTK/toolchains.git "$TC_DIR" \
+        || error "Falha ao clonar o toolchains."
+    [ -x "$CLANG_DIR/bin/clang" ] || {
+        case "$CLANG_DIR" in
+        "$TC_DIR"/*)
+            msg "Baixando $(basename "$CLANG_DIR") do Release..."
+            "$TC_DIR/fetch-clang.sh" "$(basename "$CLANG_DIR")" \
+                || error "Falha ao baixar o clang."
+            ;;
+        esac
+    }
     [ -x "$CLANG_DIR/bin/clang" ] || error "clang nao esta em $CLANG_DIR/bin."
     msg "Toolchain pronta em $TC_DIR"
 }

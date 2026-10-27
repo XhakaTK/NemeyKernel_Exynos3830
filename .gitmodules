@@ -1,4 +1,0 @@
-[submodule "pronton-toolchains"]
-	path = pronton-toolchains
-	url = https://github.com/XhakaTK/pronton-toolchains.git
-	branch = master
