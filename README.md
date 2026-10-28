@@ -28,16 +28,7 @@ Rode o script de build:
 bash build.sh
 ```
 
-Ele mostra o menu para escolher o dispositivo:
 
-```
-==============================
-   PegasusKernel - Exynos 850
-==============================
-  1) A12s (exynos850-a12s_defconfig)
-
-Escolha o dispositivo [1]:
-```
 
 Aperte Enter (o padrão é `1`). O script aplica o defconfig e em seguida roda `make -j4`.
 
