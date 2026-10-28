@@ -184,22 +184,8 @@ export CLANG_TRIPLE=aarch64-linux-gnu-
 export KCFLAGS=-w
 export CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
-# Menu local: quem passa DEFCONFIG pelo ambiente ou o alvo na linha de comando
-# nunca cai aqui.
-if [ -z "$1" ] && [ -t 0 ]; then
-    echo
-    echo "=============================="
-    echo "   ${CODENAME} - Exynos 850"
-    echo "=============================="
-    echo "  1) A12s (exynos850-a12s_defconfig)"
-    echo
-    read -r -p "Escolha o dispositivo [1]: " OPT
-    case "${OPT:-1}" in
-        1) DEVICE_TARGET=a12s ;;
-        *) error "Opcao invalida: $OPT" ;;
-    esac
-    DEFCONFIG="exynos850-${DEVICE_TARGET}_defconfig"
-fi
+# Sem menu: alvo e defconfig vem do ambiente (DEVICE_TARGET/DEFCONFIG) ou do
+# argumento, e o default ja e a12s.
 
 apply_variant
 
