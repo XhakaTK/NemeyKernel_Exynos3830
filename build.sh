@@ -14,17 +14,10 @@ OUT_DIR="$ROOT_DIR/out"
 TC_DIR="$ROOT_DIR/toolchains"
 PKG_DIR="$ROOT_DIR/kernel_build"
 PKG_STAGE="$OUT_DIR/pkg"
-# Um clang posto ao lado da arvore (../clang-r614150) tem prioridade; sem
-# ele, cai no toolchains/ (repo XhakaTK/toolchains).
-PARENT_CLANG="$(dirname "$ROOT_DIR")/clang-r614150"
+# O clang mora em toolchains/ (repo XhakaTK/toolchains); CLANG_DIR no ambiente
+# sobrescreve.
 TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
-[ -n "$CLANG_DIR" ] || {
-    if [ -x "$PARENT_CLANG/bin/clang" ]; then
-        CLANG_DIR=$PARENT_CLANG
-    else
-        CLANG_DIR="$TC_DIR/clang/host/linux-x86/clang-r614150"
-    fi
-}
+CLANG_DIR=${CLANG_DIR:-"$TC_DIR/clang/host/linux-x86/clang-r614150"}
 
 DEVICE_TARGET=${DEVICE_TARGET:-"a12s"}
 DEFCONFIG=${DEFCONFIG:-"exynos850-${DEVICE_TARGET}_defconfig"}
@@ -123,21 +116,12 @@ apply_variant() {
 
 export PATH="$CLANG_DIR/bin:$TOOLS_DIR:$PATH"
 
-# mold nao le linker script de kernel: o "man mold" diz que ele implementa só o
-# minimo de SECTIONS/INPUT que o libc.so precisa, e o primeiro link do build
-# aborta com "unknown linker script token". Ele entra entao no link das
-# ferramentas de build, que passam pelo driver do clang; o kernel fica no lld.
-HOST_LD=ld.lld
-HOST_LD_FLAGS=
-if command -v ld.mold >/dev/null 2>&1; then
-    HOST_LD=ld.mold
-    HOST_LD_FLAGS=-fuse-ld=mold
-fi
-
+# Tudo fica no lld, kernel e ferramentas de build. Mold nao serve para o kernel:
+# o "man mold" diz que ele implementa so o minimo de SECTIONS/INPUT que o
+# libc.so precisa, e o primeiro link aborta com "unknown linker script token".
 MAKE_ARGS="ARCH=arm64 CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm \
 OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip \
-HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=$HOST_LD \
-HOSTLDFLAGS=$HOST_LD_FLAGS \
+HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=ld.lld \
 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
 CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1"
 
@@ -171,10 +155,10 @@ esac
 export KBUILD_BUILD_USER="PegasusKernel"
 export KBUILD_BUILD_HOST="pegasus-lab"
 export ARCH=arm64
-export SUBARCH=arm64
+# Estes dois viram macro de compilacao: TARGET_SOC no nanohub (-DTARGET_SOC) e
+# PLATFORM_VERSION no SCSC (SCSC_SEP_VERSION). Nao sao ruido do Android.
 export TARGET_SOC=s5e3830
 export PLATFORM_VERSION=13
-export ANDROID_MAJOR_VERSION=t
 export CC=clang
 export LD=ld.lld
 export LLVM=1
@@ -193,9 +177,11 @@ apply_variant
 # aparelho): a arvore nao tem alvo boot.img, entao a base vem por BOOT_IMG.
 # Checa aqui para nao queimar duas horas de build em cima de um caminho errado.
 BOOT_IMG_SRC=${BOOT_IMG:-"$PKG_DIR/base/boot.img"}
+HAS_BOOT_IMG=false
 if [ -f "$BOOT_IMG_SRC" ]; then
     [ "$(head -c 8 "$BOOT_IMG_SRC")" = "ANDROID!" ] ||
         error "$BOOT_IMG_SRC nao e um boot.img (cabecalho sem ANDROID!)."
+    HAS_BOOT_IMG=true
 fi
 
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "untracked")
@@ -205,7 +191,7 @@ XY_TAG=${XY_TAG:-$(git describe --tags --abbrev=0 2>/dev/null || echo "$COMMIT_H
 BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
 PKG_NAME="${CODENAME}@${DEVICE_TARGET}-${XY_TAG}${VARIANT_SLUG}"
 
-msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs (kernel: ld.lld, tools: $HOST_LD, variante $VARIANT_SLUG)..."
+msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs (linker: ld.lld, variante $VARIANT_SLUG)..."
 mkdir -p "$OUT_DIR/arch/arm64/boot" "$PKG_DIR"
 
 make $MAKE_ARGS "$DEFCONFIG"
@@ -231,7 +217,7 @@ brotli -q 11 -f -o "$PKG_STAGE/dtbo.br" arch/arm64/boot/dtbo.img
 
 # boot.br so sai do boot.img inteiro validado antes do build.
 BOOT_COMMENT="# "
-if [ -f "$BOOT_IMG_SRC" ]; then
+if $HAS_BOOT_IMG; then
     brotli -q 11 -f -o "$PKG_STAGE/boot.br" "$BOOT_IMG_SRC"
     BOOT_COMMENT=""
 else
@@ -243,7 +229,7 @@ sed -e "s|@BOOTLOADER_PREFIX@|$BOOTLOADER_PREFIX|" \
     "$PKG_DIR/update-commands.template" > "$SFF_DIR/update-commands"
 
 members=()
-if [ -f "$PKG_STAGE/boot.br" ]; then members+=(boot.br); fi
+if $HAS_BOOT_IMG; then members+=(boot.br); fi
 members+=(dtbo.br META-INF/com/google/android/update-commands)
 
 rm -f "$PKG_DIR/$PKG_NAME.tar" "$PKG_DIR/$PKG_NAME.zip"
