@@ -2436,82 +2436,82 @@ static struct proc_dir_entry *proc_dir_ilitek;
 typedef struct {
 	char *name;
 	struct proc_dir_entry *node;
-	struct file_operations *fops;
+	const struct proc_ops *fops;
 	bool isCreated;
 } proc_node;
 
-static struct file_operations proc_mp_lcm_on_test_fops = {
-	.read = ilitek_node_mp_lcm_on_test_read,
+static const struct proc_ops proc_mp_lcm_on_test_fops = {
+	.proc_read = ilitek_node_mp_lcm_on_test_read,
 };
 
-static struct file_operations proc_mp_lcm_off_test_fops = {
-	.read = ilitek_node_mp_lcm_off_test_read,
+static const struct proc_ops proc_mp_lcm_off_test_fops = {
+	.proc_read = ilitek_node_mp_lcm_off_test_read,
 };
 
-static struct file_operations proc_ver_info_fops = {
-	.read = ilitek_node_ver_info_read,
+static const struct proc_ops proc_ver_info_fops = {
+	.proc_read = ilitek_node_ver_info_read,
 };
 
-static struct file_operations proc_change_list_fops = {
-	.read = ilitek_node_change_list_read,
+static const struct proc_ops proc_change_list_fops = {
+	.proc_read = ilitek_node_change_list_read,
 };
 
-static struct file_operations proc_debug_message_fops = {
-	.read = ilitek_proc_debug_message_read,
+static const struct proc_ops proc_debug_message_fops = {
+	.proc_read = ilitek_proc_debug_message_read,
 };
 
-static struct file_operations proc_debug_message_switch_fops = {
-	.read = ilitek_proc_debug_switch_read,
+static const struct proc_ops proc_debug_message_switch_fops = {
+	.proc_read = ilitek_proc_debug_switch_read,
 };
 
-static struct file_operations proc_ioctl_fops = {
-	.unlocked_ioctl = ilitek_node_ioctl,
+static const struct proc_ops proc_ioctl_fops = {
+	.proc_ioctl = ilitek_node_ioctl,
 #ifdef CONFIG_COMPAT
-	.compat_ioctl = ilitek_node_compat_ioctl,
+	.proc_compat_ioctl = ilitek_node_compat_ioctl,
 #endif
-	.write = ilitek_node_ioctl_write,
+	.proc_write = ilitek_node_ioctl_write,
 };
 
-static struct file_operations proc_fw_upgrade_fops = {
-	.read = ilitek_node_fw_upgrade_read,
+static const struct proc_ops proc_fw_upgrade_fops = {
+	.proc_read = ilitek_node_fw_upgrade_read,
 };
 
-static struct file_operations proc_fw_process_fops = {
-	.read = ilitek_proc_fw_process_read,
+static const struct proc_ops proc_fw_process_fops = {
+	.proc_read = ilitek_proc_fw_process_read,
 };
 
-static struct file_operations proc_get_delta_data_fops = {
-	.read = ilitek_proc_get_delta_data_read,
+static const struct proc_ops proc_get_delta_data_fops = {
+	.proc_read = ilitek_proc_get_delta_data_read,
 };
 
-static struct file_operations proc_get_raw_data_fops = {
-	.read = ilitek_proc_fw_get_raw_data_read,
+static const struct proc_ops proc_get_raw_data_fops = {
+	.proc_read = ilitek_proc_fw_get_raw_data_read,
 };
 
-static struct file_operations proc_rw_tp_reg_fops = {
-	.read = ilitek_proc_rw_tp_reg_read,
-	.write = ilitek_proc_rw_tp_reg_write,
+static const struct proc_ops proc_rw_tp_reg_fops = {
+	.proc_read = ilitek_proc_rw_tp_reg_read,
+	.proc_write = ilitek_proc_rw_tp_reg_write,
 };
 
-static struct file_operations proc_fw_pc_counter_fops = {
-	.read = ilitek_proc_fw_pc_counter_read,
+static const struct proc_ops proc_fw_pc_counter_fops = {
+	.proc_read = ilitek_proc_fw_pc_counter_read,
 };
 
-static struct file_operations proc_get_debug_mode_data_fops = {
-	.read = ilitek_proc_get_debug_mode_data_read,
-	.write = ilitek_proc_get_debug_mode_data_write,
+static const struct proc_ops proc_get_debug_mode_data_fops = {
+	.proc_read = ilitek_proc_get_debug_mode_data_read,
+	.proc_write = ilitek_proc_get_debug_mode_data_write,
 };
 
-static struct file_operations proc_debug_level_fops = {
-	.read = ilitek_proc_debug_level_read,
+static const struct proc_ops proc_debug_level_fops = {
+	.proc_read = ilitek_proc_debug_level_read,
 };
 
-static struct file_operations proc_get_customer_info_fops = {
-	.read = ilitek_proc_get_customer_info,
+static const struct proc_ops proc_get_customer_info_fops = {
+	.proc_read = ilitek_proc_get_customer_info,
 };
 
-static struct file_operations proc_sram_test_fops = {
-	.read = ilitek_proc_sram_test_info,
+static const struct proc_ops proc_sram_test_fops = {
+	.proc_read = ilitek_proc_sram_test_info,
 };
 
 proc_node iliproc[] = {
