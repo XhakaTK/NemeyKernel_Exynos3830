@@ -1,7 +1,7 @@
 /dts-v1/;
 
 / {
-	compatible = "SAMSUNG\0 A12S_EUR_OPEN\0 EXYNOS850";
+	compatible = "SAMSUNG", " A12S_EUR_OPEN", " EXYNOS850_R";
 	dtbo-hw_rev = <0x00>;
 	dtbo-hw_rev_end = <0x00>;
 
@@ -3386,7 +3386,7 @@
 		target = <0xffffffff>;
 
 		__overlay__ {
-			bootargs_ext = [00];
+			bootargs_ext = "root=/dev/ram0 androidboot.hardware=s5e3830 androidboot.boot_devices=12100000.dwmmc0 earlycon=exynos4212,0x13820000 console=ttySAC2,115200";
 		};
 	};
 
@@ -3441,24 +3441,28 @@
 			decon_board_nt36525b {
 				phandle = <0x28>;
 
-				panel_power_enable_boot {
-					type = "regulator,enable\0vdd_ldo28\0regulator,enable\0gpio_lcd_rst\0regulator,enable\0gpio_lcd_bl_en";
+				panel_boot_enable {
+					type = "regulator,enable", "vdd_ldo28", "regulator,enable", "gpio_lcd_rst", "regulator,enable", "gpio_lcd_bl_en";
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
+					type = "regulator,enable", "vdd_ldo28", "delay,usleep", "1000", "regulator,enable", "gpio_lcd_bl_en", "delay,usleep", "1000";
 				};
 
 				panel_power_disable {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 6d 73 6c 65 65 70 18 00];
+					type = "delay,usleep", "3000", "regulator,disable", "gpio_lcd_bl_en", "delay,usleep", "5000", "regulator,disable", "vdd_ldo28", "delay,msleep", "30";
 				};
 
 				panel_reset {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 1d 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 30 00];
+					type = "delay,usleep", "10000", "regulator,enable", "gpio_lcd_rst", "delay,usleep", "1000", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "3500", "regulator,enable", "gpio_lcd_rst", "delay,usleep", "10000";
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep0\0regulator,disable\0gpio_lcd_rst\0delay,usleep(00";
+					type = "delay,msleep", "60", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "5000";
+				};
+
+				panel_not_connected {
+					type = "regulator,disable", "vdd_ldo28", "regulator,disable", "gpio_lcd_rst", "regulator,disable", "gpio_lcd_bl_en";
 				};
 			};
 
@@ -3495,24 +3499,28 @@
 			decon_board_ili9882q_boe {
 				phandle = <0x29>;
 
-				panel_power_enable_boot {
-					type = "regulator,enable\0vdd_ldo28\0regulator,enable\0gpio_lcd_rst\0regulator,enable\0gpio_lcd_bl_en";
+				panel_boot_enable {
+					type = "regulator,enable", "vdd_ldo28", "regulator,enable", "gpio_lcd_rst", "regulator,enable", "gpio_lcd_bl_en";
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
+					type = "regulator,enable", "vdd_ldo28", "delay,usleep", "1000", "regulator,enable", "gpio_lcd_bl_en", "delay,usleep", "1000";
 				};
 
 				panel_power_disable {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 0d 30 30 30 00];
+					type = "delay,usleep", "3000", "regulator,disable", "gpio_lcd_bl_en", "delay,usleep", "5000", "regulator,disable", "vdd_ldo28", "delay,usleep", "15000";
 				};
 
 				panel_reset {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 20 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 6d 73 6c 65 65 70 15 00];
+					type = "delay,usleep", "4000", "regulator,enable", "gpio_lcd_rst", "delay,usleep", "1000", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "1000", "regulator,enable", "gpio_lcd_rst", "delay,msleep", "25";
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep\090\0regulator,disable\0gpio_lcd_rst\0delay,usleep(00";
+					type = "delay,msleep", "90", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "5000";
+				};
+
+				panel_not_connected {
+					type = "regulator,disable", "vdd_ldo28", "regulator,disable", "gpio_lcd_rst", "regulator,disable", "gpio_lcd_bl_en";
 				};
 			};
 
@@ -3609,24 +3617,28 @@
 			decon_board_td4150 {
 				phandle = <0x2a>;
 
-				panel_power_enable_boot {
-					type = "regulator,enable\0vdd_ldo28\0regulator,enable\0gpio_lcd_rst\0regulator,enable\0gpio_lcd_bl_en";
+				panel_boot_enable {
+					type = "regulator,enable", "vdd_ldo28", "regulator,enable", "gpio_lcd_rst", "regulator,enable", "gpio_lcd_bl_en";
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
+					type = "regulator,enable", "vdd_ldo28", "delay,usleep", "1000", "regulator,enable", "gpio_lcd_bl_en", "delay,usleep", "1000";
 				};
 
 				panel_power_disable {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 0d 30 30 30 00];
+					type = "delay,usleep", "3000", "regulator,disable", "gpio_lcd_bl_en", "delay,usleep", "5000", "regulator,disable", "vdd_ldo28", "delay,usleep", "15000";
 				};
 
 				panel_reset {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 08 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 10 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 10 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 65 6e 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 72 73 74 00 64 65 6c 61 79 2c 6d 73 6c 65 65 70 10 00];
+					type = "delay,usleep", "1000", "regulator,enable", "gpio_lcd_rst", "delay,usleep", "2000", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "2000", "regulator,enable", "gpio_lcd_rst", "delay,msleep", "20";
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep8\0regulator,disable\0gpio_lcd_rst\0delay,usleep\b000";
+					type = "delay,msleep", "70", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "10000";
+				};
+
+				panel_not_connected {
+					type = "regulator,disable", "vdd_ldo28", "regulator,disable", "gpio_lcd_rst", "regulator,disable", "gpio_lcd_bl_en";
 				};
 			};
 
@@ -3663,24 +3675,28 @@
 			decon_board_ili7807s {
 				phandle = <0x2b>;
 
-				panel_power_enable_boot {
-					type = "regulator,enable\0vdd_ldo28\0regulator,enable\0gpio_lcd_rst\0regulator,enable\0gpio_lcd_bl_en";
+				panel_boot_enable {
+					type = "regulator,enable", "vdd_ldo28", "regulator,enable", "gpio_lcd_rst", "regulator,enable", "gpio_lcd_bl_en";
 				};
 
 				panel_power_enable {
-					type = "regulator,enable\0vdd_ldo28\0delay,usleep\b00\0regulator,enable\0gpio_lcd_bl_en\0delay,usleep\b00";
+					type = "regulator,enable", "vdd_ldo28", "delay,usleep", "1000", "regulator,enable", "gpio_lcd_bl_en", "delay,usleep", "1000";
 				};
 
 				panel_power_disable {
-					type = [64 65 6c 61 79 2c 75 73 6c 65 65 70 18 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 67 70 69 6f 5f 6c 63 64 5f 62 6c 5f 65 6e 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 28 30 30 00 72 65 67 75 6c 61 74 6f 72 2c 64 69 73 61 62 6c 65 00 76 64 64 5f 6c 64 6f 32 38 00 64 65 6c 61 79 2c 75 73 6c 65 65 70 0d 30 30 30 00];
+					type = "delay,usleep", "3000", "regulator,disable", "gpio_lcd_bl_en", "delay,usleep", "5000", "regulator,disable", "vdd_ldo28", "delay,usleep", "15000";
 				};
 
 				panel_reset {
-					type = "delay,usleep\b00\0regulator,enable\0gpio_lcd_rst\0delay,usleep\b00\0regulator,disable\0gpio_lcd_rst\0delay,usleep\b00\0regulator,enable\0gpio_lcd_rst\0delay,msleep-";
+					type = "delay,usleep", "1000", "regulator,enable", "gpio_lcd_rst", "delay,usleep", "1000", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "1000", "regulator,enable", "gpio_lcd_rst", "delay,msleep", "55";
 				};
 
 				panel_reset_disable {
-					type = "delay,msleep\090\0regulator,disable\0gpio_lcd_rst\0delay,usleep\b000";
+					type = "delay,msleep", "90", "regulator,disable", "gpio_lcd_rst", "delay,usleep", "10000";
+				};
+
+				panel_not_connected {
+					type = "regulator,disable", "vdd_ldo28", "regulator,disable", "gpio_lcd_rst", "regulator,disable", "gpio_lcd_bl_en";
 				};
 			};
 
