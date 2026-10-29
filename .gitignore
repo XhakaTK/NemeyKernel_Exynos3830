@@ -1,10 +1,8 @@
 /KernelSU-Next/
 
-# saida do build.sh (artefatos e pacotes .br/tar/zip)
+# saida do build.sh (artefatos de build)
 /out/
 /*.zip
-/kernel_build/PegasusKernel@*
-/kernel_build/base/
 
 # Toolchain (clonada/extraida pelo build.sh; nunca versionar)
 /toolchains/

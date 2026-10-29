@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-# Build + empacotamento do PegasusKernel (Exynos 850 / a12s): ponto de entrada
-# unico. Carrega dependencia e toolchain, compila, gera os .br e fecha o tar e
-# o zip em kernel_build/. O comportamento sai de variaveis de ambiente:
-# VARIANT (e|p), DEFCONFIG, JOBS, CLANG_DIR, BOOT_IMG, BOOTLOADER_PREFIX,
-# XY_TAG e DEVICE_TARGET.
+# Build do PegasusKernel (Exynos 850 / a12s): ponto de entrada unico. Carrega
+# dependencia e toolchain, compila e coleta Image/Image.gz/dtb.img/dtbo.img,
+# System.map e .config em out/. O comportamento sai de variaveis de ambiente:
+# VARIANT (e|p), DEFCONFIG, JOBS, CLANG_DIR e DEVICE_TARGET.
 
 set -e
 
@@ -12,8 +11,6 @@ SECONDS=0
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUT_DIR="$ROOT_DIR/out"
 TC_DIR="$ROOT_DIR/toolchains"
-PKG_DIR="$ROOT_DIR/kernel_build"
-PKG_STAGE="$OUT_DIR/pkg"
 # O clang mora em toolchains/ (repo XhakaTK/toolchains); CLANG_DIR no ambiente
 # sobrescreve.
 TOOLS_DIR="$TC_DIR/build/kernel/build-tools/path/linux-x86"
@@ -25,8 +22,6 @@ JOBS=${JOBS:-$(nproc --all)}
 CODENAME=$(cat "$ROOT_DIR/codename" 2>/dev/null || echo "PegasusKernel")
 # e = selinux enforcing, p = permissive (o defconfig salvo ja vem permissive).
 VARIANT=${VARIANT:-"p"}
-# Prefixo de ro.boot.bootloader usado pelo flasher para aceitar o pacote.
-BOOTLOADER_PREFIX=${BOOTLOADER_PREFIX:-"A127F"}
 
 export TERM=xterm
 red='\033[0;31m'
@@ -43,7 +38,7 @@ error() {
 # --- Dependencias do host ---
 setup_deps() {
     local deps=(
-        aptitude bc bison brotli ccache cpio curl flex git kmod libelf-dev
+        aptitude bc bison ccache cpio curl flex git kmod libelf-dev
         libssl-dev lz4 perl python-is-python3 python3 tar unzip wget
         zlib1g-dev zip zstd
         gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
@@ -173,30 +168,15 @@ export CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
 apply_variant
 
-# boot.br so faz sentido a partir de um boot.img inteiro (ramdisk + dtb do
-# aparelho): a arvore nao tem alvo boot.img, entao a base vem por BOOT_IMG.
-# Checa aqui para nao queimar duas horas de build em cima de um caminho errado.
-BOOT_IMG_SRC=${BOOT_IMG:-"$PKG_DIR/base/boot.img"}
-HAS_BOOT_IMG=false
-if [ -f "$BOOT_IMG_SRC" ]; then
-    [ "$(head -c 8 "$BOOT_IMG_SRC")" = "ANDROID!" ] ||
-        error "$BOOT_IMG_SRC nao e um boot.img (cabecalho sem ANDROID!)."
-    HAS_BOOT_IMG=true
-fi
-
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "untracked")
-# A tag vem do 'git describe'; sem tag nenhuma, o nome do pacote usa o sha
-# curto. XY_TAG no ambiente sobrescreve.
-XY_TAG=${XY_TAG:-$(git describe --tags --abbrev=0 2>/dev/null || echo "$COMMIT_HASH")}
 BUILD_DETAILS="${CODENAME}-${DEVICE_TARGET}-$(date +%Y%m%d)_${COMMIT_HASH}-NIGHTLY"
-PKG_NAME="${CODENAME}@${DEVICE_TARGET}-${XY_TAG}${VARIANT_SLUG}"
 
 msg "Compilando $DEFCONFIG para $DEVICE_TARGET com $JOBS jobs (linker: ld.lld, variante $VARIANT_SLUG)..."
-mkdir -p "$OUT_DIR/arch/arm64/boot" "$PKG_DIR"
+mkdir -p "$OUT_DIR/arch/arm64/boot"
 
 make $MAKE_ARGS "$DEFCONFIG"
 make $MAKE_ARGS -j"$JOBS"
-# dtb.img/dtbo.img nao sao alvo de 'all', mas o empacotamento .br depende deles
+# dtb.img/dtbo.img nao sao alvo de 'all', mas a coleta de artefatos precisa deles
 make $MAKE_ARGS dtbs dtb.img dtbo.img
 
 [ -f arch/arm64/boot/Image ] || error "Compilacao falhou! Image nao encontrado."
@@ -207,44 +187,9 @@ cp arch/arm64/boot/Image arch/arm64/boot/Image.gz \
 cp System.map "$OUT_DIR/"
 cp .config "$OUT_DIR/.config"
 
-# --- Empacotamento: .br + tar + zip ---
-# Os .br vao na raiz e o manifest do flasher em META-INF/com/google/android/,
-# que e o leiaute que as linhas "flash_compressed" abaixo esperam.
-SFF_DIR="$PKG_STAGE/META-INF/com/google/android"
-rm -rf "$PKG_STAGE"
-mkdir -p "$SFF_DIR"
-brotli -q 11 -f -o "$PKG_STAGE/dtbo.br" arch/arm64/boot/dtbo.img
-
-# boot.br so sai do boot.img inteiro validado antes do build.
-BOOT_COMMENT="# "
-if $HAS_BOOT_IMG; then
-    brotli -q 11 -f -o "$PKG_STAGE/boot.br" "$BOOT_IMG_SRC"
-    BOOT_COMMENT=""
-else
-    msg "Sem boot.img em $BOOT_IMG_SRC: pacote sem boot.br."
-fi
-
-sed -e "s|@BOOTLOADER_PREFIX@|$BOOTLOADER_PREFIX|" \
-    -e "s|@BOOT@|$BOOT_COMMENT|" \
-    "$PKG_DIR/update-commands.template" > "$SFF_DIR/update-commands"
-
-members=()
-if $HAS_BOOT_IMG; then members+=(boot.br); fi
-members+=(dtbo.br META-INF/com/google/android/update-commands)
-
-rm -f "$PKG_DIR/$PKG_NAME.tar" "$PKG_DIR/$PKG_NAME.zip"
-tar -cf "$PKG_DIR/$PKG_NAME.tar" -C "$PKG_STAGE" "${members[@]}" \
-    -C "$OUT_DIR/arch/arm64/boot" Image Image.gz dtb.img dtbo.img \
-    -C "$OUT_DIR" System.map .config
-(cd "$PKG_STAGE" && zip -r9q "$PKG_DIR/$PKG_NAME.zip" "${members[@]}")
-
 for f in Image Image.gz dtb.img dtbo.img; do
     printf '%-10s %12s bytes\n' "$f" "$(stat -c %s "$OUT_DIR/arch/arm64/boot/$f")"
-done
-for f in "$PKG_DIR/$PKG_NAME.tar" "$PKG_DIR/$PKG_NAME.zip"; do
-    printf '%-10s %12s bytes\n' "$(basename "$f")" "$(stat -c %s "$f")"
 done
 
 echo -e "\n${green}Build $BUILD_DETAILS concluido em $((SECONDS / 60)) minuto(s)!${reset}"
 msg "Artefatos: $OUT_DIR/arch/arm64/boot"
-msg "Pacotes:   $PKG_DIR/$PKG_NAME.{tar,zip}"
