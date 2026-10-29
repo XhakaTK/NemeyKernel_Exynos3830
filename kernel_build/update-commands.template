@@ -1,0 +1,6 @@
+### SFF ###
+# ro.boot.bootloader e <modelo><regiao><versao>, ex. A127FXXU4CXL2
+prop_startswith ro.boot.bootloader @BOOTLOADER_PREFIX@
+quick_flash yes
+@BOOT@flash_compressed boot.br /dev/block/by-name/boot
+flash_compressed dtbo.br /dev/block/by-name/dtbo
