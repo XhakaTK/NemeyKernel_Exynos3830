@@ -14,9 +14,6 @@
 #include <linux/err.h>
 #include <linux/user_namespace.h>
 #include <linux/nsproxy.h>
-#include <linux/once.h>
-#include <linux/random.h>
-#include <linux/siphash.h>
 #include <keys/keyring-type.h>
 #include <keys/user-type.h>
 #include <linux/assoc_array_priv.h>
@@ -150,46 +147,49 @@ static int keyring_instantiate(struct key *keyring,
 }
 
 /*
- * Give key types and domains address-independent identities.  Zero means that
- * an ID has not yet been allocated.  As with inode sequence numbers used by
- * futexes, this relies on the 64-bit counter not wrapping in a machine's
- * lifetime.
+ * Multiply 64-bits by 32-bits to 96-bits and fold back to 64-bit.  Ideally we'd
+ * fold the carry back too, but that requires inline asm.
  */
-static u64 key_index_id(atomic64_t *id)
+static u64 mult_64x32_and_fold(u64 x, u32 y)
 {
-	static atomic64_t next_id;
-	u64 old, new;
-
-	old = atomic64_read(id);
-	if (likely(old))
-		return old;
-
-	do {
-		new = atomic64_inc_return(&next_id);
-	} while (WARN_ON_ONCE(!new));
-
-	old = 0;
-	if (!atomic64_try_cmpxchg_relaxed(id, &old, new))
-		return old;
-	return new;
+	u64 hi = (u64)(u32)(x >> 32) * y;
+	u64 lo = (u64)(u32)(x) * y;
+	return lo + ((u64)(u32)hi << 32) + (u32)(hi >> 32);
 }
 
 /*
- * Hash a key type, domain and description.  KEYCTL_READ exposes the tree's
- * traversal order, so no part of the index may contain kernel addresses.
+ * Hash a key type and description.
  */
 static void hash_key_type_and_desc(struct keyring_index_key *index_key)
 {
 	const unsigned level_shift = ASSOC_ARRAY_LEVEL_STEP;
 	const unsigned long fan_mask = ASSOC_ARRAY_FAN_MASK;
-	static siphash_key_t hash_key __read_mostly;
-	unsigned long hash;
+	const char *description = index_key->description;
+	unsigned long hash, type;
+	u32 piece;
 	u64 acc;
+	int n, desc_len = index_key->desc_len;
 
-	get_random_once(&hash_key, sizeof(hash_key));
-	acc = siphash(index_key->description, index_key->desc_len, &hash_key);
-	acc = siphash_3u64(index_key->type_id, index_key->domain_id, acc,
-			   &hash_key);
+	type = (unsigned long)index_key->type;
+	acc = mult_64x32_and_fold(type, desc_len + 13);
+	acc = mult_64x32_and_fold(acc, 9207);
+	piece = (unsigned long)index_key->domain_tag;
+	acc = mult_64x32_and_fold(acc, piece);
+	acc = mult_64x32_and_fold(acc, 9207);
+
+	for (;;) {
+		n = desc_len;
+		if (n <= 0)
+			break;
+		if (n > 4)
+			n = 4;
+		piece = 0;
+		memcpy(&piece, description, n);
+		description += n;
+		desc_len -= n;
+		acc = mult_64x32_and_fold(acc, piece);
+		acc = mult_64x32_and_fold(acc, 9207);
+	}
 
 	/* Fold the hash down to 32 bits if need be. */
 	hash = acc;
@@ -209,7 +209,7 @@ static void hash_key_type_and_desc(struct keyring_index_key *index_key)
 
 /*
  * Finalise an index key to include a part of the description actually in the
- * index key, to set the domain tag and index IDs, and to calculate the hash.
+ * index key, to set the domain tag and to calculate the hash.
  */
 void key_set_index_key(struct keyring_index_key *index_key)
 {
@@ -224,14 +224,6 @@ void key_set_index_key(struct keyring_index_key *index_key)
 		else
 			index_key->domain_tag = &default_domain_tag;
 	}
-
-	/* Preserve the IDs when copying an existing key's index.  In
-	 * particular, its type may already have been unregistered.
-	 */
-	if (!index_key->type_id)
-		index_key->type_id = key_index_id(&index_key->type->index_id);
-	if (!index_key->domain_id)
-		index_key->domain_id = key_index_id(&index_key->domain_tag->index_id);
 
 	hash_key_type_and_desc(index_key);
 }
@@ -337,7 +329,6 @@ static int keyring_diff_objects(const void *object, const void *data)
 	const struct keyring_index_key *b = data;
 	unsigned long seg_a, seg_b;
 	int level, i;
-	u64 diff;
 
 	level = 0;
 	seg_a = a->hash;
@@ -346,22 +337,28 @@ static int keyring_diff_objects(const void *object, const void *data)
 		goto differ;
 	level += ASSOC_ARRAY_KEY_CHUNK_SIZE / 8;
 
-	/* The inline description contributes one machine-word-sized chunk. */
+	/* The number of bits contributed by the hash is controlled by a
+	 * constant in the assoc_array headers.  Everything else thereafter we
+	 * can deal with as being machine word-size dependent.
+	 */
 	seg_a = a->x;
 	seg_b = b->x;
 	if ((seg_a ^ seg_b) != 0)
 		goto differ;
 	level += sizeof(unsigned long);
 
-	diff = a->type_id ^ b->type_id;
-	if (diff)
-		return level * 8 + __ffs64(diff);
-	level += sizeof(u64);
+	/* The next bit may not work on big endian */
+	seg_a = (unsigned long)a->type;
+	seg_b = (unsigned long)b->type;
+	if ((seg_a ^ seg_b) != 0)
+		goto differ;
+	level += sizeof(unsigned long);
 
-	diff = a->domain_id ^ b->domain_id;
-	if (diff)
-		return level * 8 + __ffs64(diff);
-	level += sizeof(u64);
+	seg_a = (unsigned long)a->domain_tag;
+	seg_b = (unsigned long)b->domain_tag;
+	if ((seg_a ^ seg_b) != 0)
+		goto differ;
+	level += sizeof(unsigned long);
 
 	i = sizeof(a->desc);
 	if (a->desc_len <= i)

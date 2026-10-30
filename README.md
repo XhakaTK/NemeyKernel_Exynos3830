@@ -1,6 +1,6 @@
 # PegasusKernel — Exynos 850 (A12s)
 
-Kernel Linux 5.10.271 para Samsung Galaxy A12s (SM-A127F), baseado no Exynos 850 (s5e3830).
+Kernel Linux 5.10.273 para Samsung Galaxy A12s (SM-A127F), baseado no Exynos 850 (s5e3830). O 273 e um mini-upstream: so os commits do stable que caem em subsistema que este kernel compila.
 
 ## Requisitos
 
