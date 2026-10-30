@@ -467,6 +467,13 @@ static int contexthub_download_image(struct contexthub_ipc_info *chub, int idx)
 		nanohub_dev_err(chub->dev,
 				"%s: request_firmware failed (%d)\n", __func__, idx);
 		release_firmware(entry);
+#if defined(CONFIG_SHUB)
+		/* Este produto nao tem os.checked.bin: a imagem do hub e o blob
+		 * nomeado pela DT (os-type), carregado pelo vendor shub. */
+		ret = shub_download_firmware(chub_addr);
+		if (!ret)
+			return 0;
+#endif
 		return ret;
 	}
 	memcpy_toio(chub_addr, entry->data, entry->size);
