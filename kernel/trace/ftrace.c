@@ -136,14 +136,17 @@ static inline void ftrace_ops_init(struct ftrace_ops *ops)
 	unsigned long flags = smp_load_acquire(&ops->flags);
 
 	if (!(flags & FTRACE_OPS_FL_INITIALIZED)) {
-		guard(mutex)(&ops_mutex);
+		mutex_lock(&ops_mutex);
 		/* Could have been initialized before lock taken */
-		if (unlikely(ops->flags & FTRACE_OPS_FL_INITIALIZED))
+		if (unlikely(ops->flags & FTRACE_OPS_FL_INITIALIZED)) {
+			mutex_unlock(&ops_mutex);
 			return;
+		}
 		mutex_init(&ops->local_hash.regex_lock);
 		ops->func_hash = &ops->local_hash;
 		flags = ops->flags | FTRACE_OPS_FL_INITIALIZED;
 		smp_store_release(&ops->flags, flags);
+		mutex_unlock(&ops_mutex);
 	}
 #endif
 }
