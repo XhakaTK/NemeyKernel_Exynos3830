@@ -1,6 +1,6 @@
-# PegasusKernel — Exynos 850 (A12s)
+# PegasusKernel — Exynos 850 (A12s / M12)
 
-Kernel Linux 5.10.273 para Samsung Galaxy A12s (SM-A127F), baseado no Exynos 850 (s5e3830). O 273 e um mini-upstream: so os commits do stable que caem em subsistema que este kernel compila.
+Kernel Linux 5.10.273 para Samsung Galaxy A12s (SM-A127F) e Galaxy M12 (SM-M127F), baseado no Exynos 850 (s5e3830). O 273 e um mini-upstream: so os commits do stable que caem em subsistema que este kernel compila.
 
 ## Requisitos
 
@@ -25,17 +25,15 @@ Release e o `build.sh` baixa e extrai localmente.
 Rode o script de build:
 
 ```bash
-bash build.sh
+bash build.sh                     # A12s (SM-A127F)
+DEVICE_TARGET=m12 bash build.sh   # M12  (SM-M127F)
 ```
 
-
-
-Aperte Enter (o padrão é `1`). O script aplica o defconfig e em seguida roda `make -j4`.
-
-Também dá para pular o menu passando o defconfig direto:
+`DEVICE_TARGET` (default `a12s`) forma o `DEFCONFIG` `exynos850-<alvo>_defconfig`, e o script aplica esse defconfig antes de rodar o `make -j`. Também dá para passar o defconfig direto:
 
 ```bash
 bash build.sh exynos850-a12s_defconfig   # A12s
+bash build.sh exynos850-m12_defconfig    # M12
 ```
 
 Opcionalmente, dê permissão de execução para usar `./build.sh`:
